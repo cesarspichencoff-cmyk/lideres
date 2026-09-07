@@ -185,7 +185,7 @@
 
   /* ABSENTEÍSMO */
   .abs-months { display: flex; gap: 6px; align-items: flex-end; height: 68px; margin-bottom: 4px; }
-  .abs-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; flex: 1; min-width: 0; }
+  .abs-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; flex: 1 0 38px; min-width: 38px; }
   .abs-bar-track { width: 100%; background: var(--border); border-radius: 2px 2px 0 0; }
   .abs-bar-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--t3); text-transform: uppercase; margin-top: 4px; }
   .abs-bar-val { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--t2); font-weight: 500; }
@@ -688,7 +688,9 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
         <span class="chart-title-text">Absenteísmo</span>
       </div>
       <div class="chart-sub">Evolução mensal — ausências</div>
-      <div class="abs-months" id="abs-months-bars" style="margin-bottom:8px;"></div>
+      <div class="chart-scroll">
+        <div class="abs-months" id="abs-months-bars" style="margin-bottom:8px;"></div>
+      </div>
     </div>
 
     <!-- LINHA 4: BANCO DE HORAS -->
@@ -1178,7 +1180,12 @@ window.perfSupa = window.perfSupa || function(cb) {
   function buildSemanas() {
     var seen = {};
     BH_ROWS.forEach(function(r) { if (r.semKey) seen[r.semKey] = 1; });
-    BH_SEMANAS = Object.keys(seen).sort().slice(-10);
+    var limite = new Date(); limite.setMonth(limite.getMonth() - 24);
+    BH_SEMANAS = Object.keys(seen).filter(function(k) {
+      var p = k.split('-'); if (p.length !== 3) return false;
+      var d = new Date(+p[0], +p[1]-1, +p[2]);
+      return !isNaN(d.getTime()) && d >= limite;
+    }).sort();
   }
 
   function buildSnapshots() {
@@ -1358,7 +1365,7 @@ window.perfSupa = window.perfSupa || function(cb) {
     var labels = Object.keys(counts).sort(function(a, b) {
       var pa = a.split('/'), pb = b.split('/');
       return (pa[1] + pa[0]).localeCompare(pb[1] + pb[0]);
-    }).slice(-10);
+    }).slice(-24);
     var vals = labels.map(function(l) { return counts[l]; });
     var maxN = Math.max.apply(null, vals) || 1;
     var minN = Math.min.apply(null, vals);
