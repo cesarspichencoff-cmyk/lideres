@@ -1639,7 +1639,7 @@ window.perfSupa = window.perfSupa || function(cb) {
       if (state.depto   !== 'Todos' && r.depto   !== state.depto)   return false;
       return true;
     });
-    var pontos = lastMonths(12).map(function(m) {
+    var pontos = lastMonths(24).map(function(m) {
       var hc = 0, dems = 0;
       rows.forEach(function(r) {
         if (r.adm < m.start && (!r.dem || r.dem >= m.start)) hc++;
