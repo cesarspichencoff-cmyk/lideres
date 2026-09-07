@@ -611,7 +611,7 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
 <div class="kpis-wrap">
   <div class="kpi-card">
     <span class="kpi-label">Avaliação Geral</span>
-    <span class="kpi-number"><span id="av-geral-num">—</span><span class="kpi-num-max"> / 5</span></span>
+    <span class="kpi-number" id="av-geral-num">—</span>
     <span class="kpi-sub" id="av-geral-sub"></span>
   </div>
   <div class="kpi-card">
@@ -996,7 +996,7 @@ window.perfSupa = window.perfSupa || function(cb) {
     supa.schema('tata_plus').rpc('reconhecimento_contagem', args).then(function(rc){
       var n=(rc&&!rc.error&&rc.data!=null)?parseInt(rc.data,10):0; if(isNaN(n)) n=0;
       var subEl=document.getElementById('av-geral-sub');
-      if(subEl) subEl.textContent=n+' reconhecimento'+(n===1?'':'s');
+      if(subEl) subEl.innerHTML='<strong>'+n+'</strong> reconhecimento'+(n===1?'':'s');
     }, function(){});
     function barRow(nomeTxt, media, nResp, titleFull){
       var m=parseFloat(media), pct=isNaN(m)?0:Math.max(0,Math.min(100,(m/5)*100));
