@@ -1940,20 +1940,19 @@ function setTab(t){
     ]},
     { label:'Avaliação de Desempenho', sigla:'P', cols: cicloCols(DES_CICLOS, DES_MAP) },
     { label:'Avaliação de Liderança',  sigla:'L', cols: cicloCols(LID_CICLOS, LID_MAP) },
-    { label:'Desligamento', sigla:'D', cols:[ ['Tipo de dispensa', ph],['Fez Homologação', ph],['Tem processo', ph] ]},
-    { label:'Tempo desde o desligamento', sigla:'T', cols:[ ['Tempo', function(c){ return c.data_demissao?tempoDesde(c.data_demissao):'—'; }] ]},
-    { label:'Entrevista de Desligamento', sigla:'E', cols:[
-      ['Respondida', function(c){ var d=DESL[c.matricula]; return (d&&d.respondida)?d.respondida:'<span class="anl-ph">—</span>'; }],
-      ['Nota',       function(c){ var d=DESL[c.matricula]; return d?fmtNota(d.nota):'<span class="anl-ph">—</span>'; }]
-    ]},
     { label:'Feedback', sigla:'F', cols:[
       ['Qtd',    function(c){ var f=FBK[c.matricula]; var n=f?f.qtd:0; return n?String(n):'<span class="anl-ph">0</span>'; }],
       ['Último', function(c){ var f=FBK[c.matricula]; return (f&&f.ultimo)?f.ultimo:'<span class="anl-ph">—</span>'; }]
     ]},
     { label:'Reconhecimento', sigla:'R', cols:[
-      ['Recebidos', function(c){ var r=REC[c.matricula]; var n=r?r.qtd:0; return n?String(n):'<span class="anl-ph">0</span>'; }],
-      ['Último',    function(c){ var r=REC[c.matricula]; return (r&&r.ultimo)?r.ultimo:'<span class="anl-ph">—</span>'; }]
-    ]}
+      ['Recebidos', function(c){ var r=REC[c.matricula]; var n=r?r.qtd:0; return n?String(n):'<span class="anl-ph">0</span>'; }]
+    ]},
+    { label:'Desligamento', sigla:'D', cols:[ ['Tipo de dispensa', ph],['Fez Homologação', ph],['Tem processo', ph] ]},
+    { label:'Entrevista de Desligamento', sigla:'E', cols:[
+      ['Respondida', function(c){ var d=DESL[c.matricula]; return (d&&d.respondida)?d.respondida:'<span class="anl-ph">—</span>'; }],
+      ['Nota',       function(c){ var d=DESL[c.matricula]; return d?fmtNota(d.nota):'<span class="anl-ph">—</span>'; }]
+    ]},
+    { label:'Tempo desde o desligamento', sigla:'T', cols:[ ['Tempo', function(c){ return c.data_demissao?tempoDesde(c.data_demissao):'—'; }] ]}
   ]; }
   function headHtml(){
     var G=GROUPS();
