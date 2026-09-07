@@ -105,11 +105,12 @@
   .kpi-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--t3); }
   .kpi-sub strong { color: var(--carbon); font-weight: 600; }
   /* Faixa de cards KPI (padrão recrutamento: faixa branca full-width + cards cinza) */
-  .kpis-wrap { background: var(--white); border-bottom: 1px solid var(--border); padding: 14px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .kpis-wrap { background: var(--white); border-bottom: 1px solid var(--border); padding: 14px 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
   .kpi-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; }
   .kpi-card .kpi-number { font-size: 28px; }
-  /* Linha 1: Avaliação Geral (compacta) + Avaliação por Tema (mais larga) */
-  .grid-aval { display: grid; grid-template-columns: 260px 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .kpi-num-max { font-size: 14px; color: var(--t3); font-weight: 400; }
+  /* Linha 1: Tipo de Avaliação + Avaliação por Tema */
+  .grid-aval { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 
   /* CARD BASE */
   .card {
@@ -601,8 +602,18 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
 
 <div id="view-geral" class="dash-view active">
 
-<!-- KPIs TOPO: Total Colaboradores + CMO (faixa full-width, padrão recrutamento) -->
+<!-- KPIs TOPO: Avaliação Geral + Colaboradores + CMO (faixa full-width, padrão recrutamento) -->
+<svg width="0" height="0"><defs>
+  <linearGradient id="half-grad" x1="0" x2="1" y1="0" y2="0">
+    <stop offset="50%" stop-color="#CFFF00"/><stop offset="50%" stop-color="#E2E2E2"/>
+  </linearGradient>
+</defs></svg>
 <div class="kpis-wrap">
+  <div class="kpi-card">
+    <span class="kpi-label">Avaliação Geral</span>
+    <span class="kpi-number"><span id="av-geral-num">—</span><span class="kpi-num-max"> / 5</span></span>
+    <span class="kpi-sub" id="av-geral-sub"></span>
+  </div>
   <div class="kpi-card">
     <span class="kpi-label">Colaboradores</span>
     <span class="kpi-number" id="kpi-total-colabs">—</span>
@@ -640,30 +651,8 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
 
   <div class="stack-cards">
 
-    <!-- LINHA 1: AVALIAÇÃO GERAL (compacta) + POR TEMA (mais larga) -->
+    <!-- LINHA 1: TIPO DE AVALIAÇÃO + AVALIAÇÃO POR TEMA -->
     <div class="grid-aval">
-      <div class="chart-block">
-        <div class="chart-title-row">
-          <span class="chart-title-text">Avaliação Geral</span>
-        </div>
-        <svg width="0" height="0">
-          <defs>
-            <linearGradient id="half-grad" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="50%" stop-color="#CFFF00"/>
-              <stop offset="50%" stop-color="#E2E2E2"/>
-            </linearGradient>
-          </defs>
-        </svg>
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 0;">
-          <div class="avaliacao-score">
-            <span class="avaliacao-num" id="av-geral-num">—</span>
-            <span class="avaliacao-max">/ 5</span>
-          </div>
-          <div class="stars" id="av-geral-stars"></div>
-          <div class="chart-sub" id="av-geral-sub" style="margin:0;"></div>
-        </div>
-      </div>
-
       <div class="chart-block">
         <div class="chart-title-row">
           <span class="chart-title-text">Tipo de Avaliação</span>
@@ -1001,10 +990,7 @@ window.perfSupa = window.perfSupa || function(cb) {
       var row=(r&&!r.error&&r.data&&r.data[0])?r.data[0]:null;
       var m=row?parseFloat(row.media):null;
       var numEl=document.getElementById('av-geral-num');
-      var stEl=document.getElementById('av-geral-stars');
-      var subEl=document.getElementById('av-geral-sub');
       if(numEl) numEl.textContent=(m==null||isNaN(m))?'—':fmt(m);
-      if(stEl)  stEl.innerHTML=starsHtml(m);
     }, function(){});
     // Reconhecimento (contagem) exibido na Avaliação Geral (no lugar da base)
     supa.schema('tata_plus').rpc('reconhecimento_contagem', args).then(function(rc){
