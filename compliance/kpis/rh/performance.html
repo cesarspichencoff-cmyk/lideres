@@ -106,6 +106,12 @@
   .kpi-number { font-size: 24px; font-weight: 700; color: var(--carbon); line-height: 1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
   .kpi-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--t3); }
   .kpi-sub strong { color: var(--carbon); font-weight: 600; }
+  /* Cards KPI grandes no topo (padrão recrutamento) */
+  .kpis-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .kpi-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.07); padding: 18px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; animation: fadeUp 0.4s ease both; }
+  .kpi-card .kpi-number { font-size: 36px; }
+  /* Linha 1: Avaliação Geral (compacta) + Avaliação por Tema (mais larga) */
+  .grid-aval { display: grid; grid-template-columns: 300px 1fr; gap: 12px; margin-bottom: 12px; }
 
   /* CARD BASE */
   .card {
@@ -329,7 +335,7 @@
   @media (max-width: 767px) {
     .main { padding: 16px 12px 100px; }
     .metrics-row { grid-template-columns: 1fr 1fr; }
-    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .grid-2, .grid-3, .grid-4, .grid-aval, .kpis-wrap { grid-template-columns: 1fr; }
     .bar-row { grid-template-columns: 80px 1fr 36px; }
   }
 </style>
@@ -616,8 +622,22 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
 
   <div class="stack-cards">
 
-    <!-- LINHA 1: AVALIAÇÃO GERAL / POR TEMA / TOTAL COLABORADORES / CMO -->
-    <div class="grid-4">
+    <!-- KPIs TOPO: Total Colaboradores + CMO (padrão recrutamento) -->
+    <div class="kpis-wrap">
+      <div class="kpi-card">
+        <span class="kpi-label">Total de Colaboradores</span>
+        <span class="kpi-number" id="kpi-total-colabs">—</span>
+        <span class="kpi-sub">ativos</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Custo Total — CMO</span>
+        <span class="kpi-number" id="kpi-custo-total">—</span>
+        <span class="kpi-sub">salário × 1,7</span>
+      </div>
+    </div>
+
+    <!-- LINHA 1: AVALIAÇÃO GERAL (compacta) + POR TEMA (mais larga) -->
+    <div class="grid-aval">
       <div class="chart-block">
         <div class="chart-title-row">
           <span class="chart-title-text">Avaliação Geral</span>
@@ -644,23 +664,9 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
         <div class="chart-title-row">
           <span class="chart-title-text">Avaliação por Tema</span>
         </div>
-        <div class="bar-list" id="av-temas-list" style="max-height:190px;overflow-y:auto;">
+        <div class="bar-list" id="av-temas-list" style="max-height:230px;overflow-y:auto;">
           <div class="chart-sub" style="margin:0;">Carregando…</div>
         </div>
-      </div>
-
-      <!-- KPI: Total Colaboradores -->
-      <div class="chart-block" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;">
-        <span class="kpi-label">Total de Colaboradores</span>
-        <span class="kpi-number" id="kpi-total-colabs" style="font-size:36px;">—</span>
-        <span class="kpi-sub">ativos</span>
-      </div>
-
-      <!-- KPI: Custo Total -->
-      <div class="chart-block" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;">
-        <span class="kpi-label">Custo Total — CMO</span>
-        <span class="kpi-number" id="kpi-custo-total" style="font-size:36px;">—</span>
-        <span class="kpi-sub">salário × 1,7</span>
       </div>
     </div>
 
