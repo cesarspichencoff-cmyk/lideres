@@ -100,8 +100,6 @@
   .filters-actions { display: flex; align-items: center; justify-content: flex-end; padding-top: 2px; }
   .btn-clear { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.5px; color: var(--t3); background: none; border: none; cursor: pointer; padding: 4px 0; text-transform: uppercase; text-decoration: underline; text-underline-offset: 2px; }
   .btn-clear:hover { color: var(--carbon); }
-  .kpis-wrap { background: var(--white); border-bottom: 1px solid var(--border); padding: 14px 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-  .kpi-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; }
   .kpi-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; color: var(--t2); }
   .kpi-number { font-size: 24px; font-weight: 700; color: var(--carbon); line-height: 1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
   .kpi-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--t3); }
@@ -974,7 +972,7 @@ window.perfSupa = window.perfSupa || function(cb) {
   function fmt(v){ if(v==null||v==='') return '—'; var n=parseFloat(v); return isNaN(n)?'—':n.toFixed(1).replace('.',','); }
   function curto(nome){
     return String(nome||'')
-      .replace(/^Avaliação de\s+/i,'')
+      .replace(/^Avaliação de\s+/i,'Av. ')
       .replace(/Experiência/i,'Exp.')
       .replace(/Colaborador/i,'Colab.')
       .replace(/\s+—\s+/,' · ');
