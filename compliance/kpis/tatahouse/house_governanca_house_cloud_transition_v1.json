@@ -1,8 +1,8 @@
 {
   "contrato": "tata-house-governanca-house-cloud-transition",
   "versao": 1,
-  "status": "PREPARED_NOT_AUTHORIZED",
-  "observadoEm": "2026-09-06",
+  "status": "CANDIDATE_IMPLEMENTATION_AUTHORIZED__PRODUCTION_NOT_AUTHORIZED",
+  "observadoEm": "2026-09-07",
   "fontesVersionadas": {
     "vertice": {
       "repo": "cesarspichencoff-cmyk/vertice-runtime.",
@@ -15,23 +15,26 @@
       "branch": "tata-house",
       "sha": "6dc04827b195aaca9d4653618e5a40ca64a1a6f4",
       "arquivos": [
+        "src/components/BootNuvem.tsx",
         "src/lib/cardapio/estado.tsx",
         "src/lib/cardapio/supabase/config.ts",
         "src/lib/cardapio/supabase/armazenamento.ts",
-        "src/lib/cardapio/supabase/sync.ts",
         "src/lib/cardapio/supabase/schema.sql",
         "src/lib/cardapio/supabase/migracoes/2026-seguranca-rls.sql"
       ]
     },
+    "lideresProducao": {
+      "repo": "tata-sushi/lideres",
+      "branch": "main",
+      "sha": "299bf72f9fbe01cebe49edc2a1e63e279fb34e26"
+    },
     "houseFeature": {
       "repo": "cesarspichencoff-cmyk/tata-house.github.io",
       "branch": "feat/house-governanca-phase1",
-      "shaObservado": "b19144a59150784ba2e716800bda2ac01676b701",
-      "arquivos": [
-        "src/components/cardapio/PlanejadorGovernanca.tsx",
-        "src/lib/cardapio/governanca-readonly.ts"
-      ]
-    }
+      "shaObservado": "610139ba5fd444e4918a9faa7144144a69240153",
+      "nota": "Branch de trabalho observada; nao e unidade promovivel inteira e nao redefine a producao House."
+    },
+    "houseCloudLiveEvidence": "house_governanca_house_cloud_live_evidence_v1.json"
   },
   "facts": {
     "houseCloudOptionalAndDecoupled": true,
@@ -42,14 +45,18 @@
     "plannerRecentFrequencyReadsReconciledLocalWeeks": true,
     "lideresOfficialEvidenceIsAnOverlay": true,
     "officialFrequencyMergeRule": "max(local, official)",
-    "newProviderImplementationRequiredNow": false
+    "newProviderImplementationRequiredNow": false,
+    "houseCloudLiveProjectRef": "ijnjhxwzazqebogzsxjb",
+    "houseCloudLiveRowsObserved": 51,
+    "houseCloudRealtimePublished": true
   },
   "transitionStrategy": {
     "agora": {
       "providerOperacional": "HOUSE_CLOUD_RECONCILED_STATE",
       "papel": "estado operacional base do produto House",
       "persistenciaNovaDeGovernanca": "DISABLED",
-      "ddlNovo": "NOT_REQUIRED_FOR_PREPARATION"
+      "ddlNovo": "NOT_REQUIRED",
+      "providerParalelo": "FORBIDDEN"
     },
     "depois": {
       "providerOficialCompartilhado": "LIDERES_TATA_REFEICOES",
@@ -60,16 +67,20 @@
   },
   "classificacao": {
     "arquiteturaHouseCloud": "PROVEN_VERSIONED",
-    "houseCloudLiveProjectIdentity": "UNKNOWN_NOT_LOADED",
-    "houseCloudLiveTablesPoliciesData": "UNKNOWN_NOT_PROVEN_LIVE",
-    "houseCloudLiveRealtime": "UNKNOWN_NOT_PROVEN_LIVE",
+    "houseCloudLiveProjectIdentity": "PROVEN_LIVE",
+    "houseCloudLiveTablesPoliciesData": "PROVEN_LIVE",
+    "houseCloudLiveRealtime": "PROVEN_LIVE",
+    "houseCodeLiveDbContract": "PROVEN",
+    "houseExactDeployedBuildProjectRef": "UNKNOWN_SECRET_NOT_READABLE",
     "lideresLiveAuthenticatedRpc": "UNKNOWN_NOT_PROVEN_LIVE",
     "controlledLideresOverlay": "PROVEN_CONTROLLED_BROWSER"
   },
   "securityBoundary": {
     "versionedSchemaShowsAnonymousTataEstadoAccess": true,
-    "strongLiveBackendAuth": "UNKNOWN",
-    "sensitiveGovernanceEventsToTataEstado": "BLOCKED_UNTIL_LIVE_POLICY_REVIEW",
+    "livePolicyShowsAnonymousTataEstadoAccess": true,
+    "strongLiveBackendAuth": "NOT_PRESENT_FOR_TATA_ESTADO_LIVE",
+    "sensitiveGovernanceEventsToTataEstado": "BLOCKED_BY_ARCHITECTURE",
+    "securityAdvisorNoLintsObserved": true,
     "doNotCopySupabaseCredentialsIntoHouseGovernanca": true
   },
   "invariantes": {
@@ -77,6 +88,7 @@
     "preserveLocalFirst": true,
     "preserveReconciliation": true,
     "noSecondIndependentHouseState": true,
+    "candidateBranchCreated": true,
     "supabaseMutation": false,
     "ddl": false,
     "merge": false,
