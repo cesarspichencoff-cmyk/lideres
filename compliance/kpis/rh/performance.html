@@ -187,8 +187,8 @@
   .abs-months { display: flex; gap: 6px; align-items: flex-end; min-height: 96px; margin-bottom: 4px; }
   .abs-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; flex: 1 0 38px; min-width: 38px; }
   .abs-bar-track { width: 100%; background: var(--border); border-radius: 2px 2px 0 0; }
-  .abs-bar-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--t3); text-transform: uppercase; margin-top: 4px; }
-  .abs-bar-val { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--t2); font-weight: 500; margin-bottom: 3px; }
+  .abs-bar-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--carbon); margin-top: 4px; }
+  .abs-bar-val { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--carbon); font-weight: 600; margin-bottom: 3px; }
 
   /* BANCO DE HORAS */
   .bh-row {
@@ -1262,13 +1262,9 @@ window.perfSupa = window.perfSupa || function(cb) {
       c += '<circle cx="'+sx(i).toFixed(1)+'" cy="'+sy(p.neg).toFixed(1)+'" r="3" fill="'+(hol?'#CFFF00':'#999')+'" stroke="#35383F" stroke-width="'+(hol?'1.5':'0')+'"/>';
       c += '<text x="'+sx(i).toFixed(1)+'" y="'+(sy(p.neg)+15).toFixed(1)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="'+(hol?'#CFFF00':'#35383F')+'" stroke="'+(hol?'#35383F':'none')+'" stroke-width="'+(hol?'0.4':'0')+'" paint-order="stroke" font-weight="600">'+Math.round(Math.abs(p.neg))+'</text>';
     });
-    // Labels X
+    // Labels X (uniformes — mesmo padrão do turnover)
     pontos.forEach(function(p,i) {
-      var hol = bhHasHoliday(p.semKey);
-      var fill = hol ? '#AAAAAA' : '#35383F';
-      var stroke = '#35383F';
-      var sw = hol ? '0.4' : '0';
-      c += '<text x="'+sx(i).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+sw+'" paint-order="stroke" font-weight="'+(hol?'600':'400')+'">'+p.label+'</text>';
+      c += '<text x="'+sx(i).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="#35383F" font-weight="400">'+p.label+'</text>';
     });
     svg.innerHTML = c;
   }
@@ -1604,11 +1600,20 @@ window.perfSupa = window.perfSupa || function(cb) {
     return out;
   }
 
+  var TV_LAST = null, TV_RO = null;
   function drawTurnoverLine(pontos) {
     var svg = document.getElementById('turnover-line-svg');
     if (!svg) return;
+    TV_LAST = pontos;
+    var host = svg.parentElement;
+    // Redesenha ao mudar a largura do container (preenche exato, sem distorcer)
+    if (host && !TV_RO && window.ResizeObserver) {
+      TV_RO = new ResizeObserver(function() { if (TV_LAST) drawTurnoverLine(TV_LAST); });
+      TV_RO.observe(host);
+    }
     var n = pontos.length;
-    var W = Math.max(900, n * 64), H = 240, H_PLOT = 200, pad = 24;
+    var cw = host ? host.clientWidth : 0;
+    var W = Math.max(cw || 900, n * 64), H = 240, H_PLOT = 200, pad = 24;
     svg.setAttribute('width', W);
     svg.setAttribute('height', H);
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
