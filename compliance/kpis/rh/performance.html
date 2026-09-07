@@ -179,7 +179,8 @@
   .bar-track { height: 18px; background: var(--bg); border-radius: 4px; overflow: hidden; }
   .bar-fill { height: 100%; background: var(--carbon); border-radius: 4px; transition: width 0.4s ease; }
   .bar-val { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; color: var(--t1); }
-  #av-temas-list .bar-row { grid-template-columns: 128px 1fr 32px; }
+  #av-temas-list .bar-row { grid-template-columns: 150px 1fr 32px; }
+  #av-temas-list .bar-name { white-space: normal; line-height: 1.15; }
   .chart-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .chart-scroll svg { min-width: 600px; }
 
@@ -995,23 +996,20 @@ window.perfSupa = window.perfSupa || function(cb) {
       if(stEl)  stEl.innerHTML=starsHtml(m);
       if(subEl) subEl.textContent=(row&&row.n)?('base: '+row.n+' avaliações'):'';
     }, function(){});
+    function barRow(nomeTxt, media, nResp, titleFull){
+      var m=parseFloat(media), pct=isNaN(m)?0:Math.max(0,Math.min(100,(m/5)*100));
+      return '<div class="bar-row" title="'+esc(titleFull||nomeTxt)+(nResp?(' · '+nResp+' resp.'):'')+'">'+
+        '<div class="bar-name">'+esc(nomeTxt)+'</div>'+
+        '<div class="bar-track"><div class="bar-fill" style="width:'+pct.toFixed(0)+'%"></div></div>'+
+        '<div class="bar-val">'+fmt(media)+'</div></div>';
+    }
+    function setList(id, html){ var el=document.getElementById(id); if(el) el.innerHTML = html || '<div class="chart-sub" style="margin:0;">Sem dados</div>'; }
+
+    // TIPO DE AVALIAÇÃO: modelos + linha de reconhecimento (contagem)
     supa.schema('tata_plus').rpc('avaliacao_temas', args).then(function(r){
       var rows=(r&&!r.error&&Array.isArray(r.data))?r.data:[];
-      function nome(t){ return t.tipo==='modelo' ? curto(t.tema) : String(t.tema).replace('Segurança Psicológica','Seg. Psicológica'); }
-      function barHtml(t){
-        var m=parseFloat(t.media), pct=isNaN(m)?0:Math.max(0,Math.min(100,(m/5)*100));
-        return '<div class="bar-row" title="'+esc(t.tema)+(t.n?(' · '+t.n+' resp.'):'')+'">'+
-          '<div class="bar-name">'+esc(nome(t))+'</div>'+
-          '<div class="bar-track"><div class="bar-fill" style="width:'+pct.toFixed(0)+'%"></div></div>'+
-          '<div class="bar-val">'+fmt(t.media)+'</div></div>';
-      }
-      function fillList(id, arr){
-        var el=document.getElementById(id); if(!el) return;
-        el.innerHTML = arr.length ? arr.map(barHtml).join('') : '<div class="chart-sub" style="margin:0;">Sem dados</div>';
-      }
-      fillList('av-tipos-list', rows.filter(function(t){return t.tipo==='modelo';}));
-      fillList('av-temas-list', rows.filter(function(t){return t.tipo==='lideranca_topico';}));
-      // Linha "Reconhecimento" (contagem, não é média /5) no painel Tipo de Avaliação
+      var modelos=rows.filter(function(t){return t.tipo==='modelo';});
+      setList('av-tipos-list', modelos.map(function(t){ return barRow(curto(t.tema), t.media, t.n, t.tema); }).join(''));
       supa.schema('tata_plus').rpc('reconhecimento_contagem', args).then(function(rc){
         var n=(rc&&!rc.error&&rc.data!=null)?parseInt(rc.data,10):0; if(isNaN(n)) n=0;
         var el=document.getElementById('av-tipos-list'); if(!el) return;
@@ -1025,6 +1023,16 @@ window.perfSupa = window.perfSupa || function(cb) {
           n+' recebido'+(n===1?'':'s')+'</div>';
         el.appendChild(row);
       }, function(){});
+    }, function(){});
+
+    // AVALIAÇÃO POR TEMA: 9 categorias (todas as avaliações) + Recomendação (indicador à parte)
+    supa.schema('tata_plus').rpc('avaliacao_categorias', args).then(function(r){
+      var rows=(r&&!r.error&&Array.isArray(r.data))?r.data:[];
+      var cats=rows.filter(function(c){return c.ordem<=9;});
+      var rec=rows.filter(function(c){return c.ordem===10;})[0];
+      var html=cats.map(function(c){ return barRow(c.categoria, c.media, c.n, c.categoria); }).join('');
+      if(rec){ html+='<div class="chart-sub" style="margin:8px 0 2px;">Indicador</div>'+barRow('Recomendação', rec.media, rec.n, 'Recomendação (índice)'); }
+      setList('av-temas-list', html);
     }, function(){});
   }
   window.registerPerfRenderer(render);
