@@ -184,11 +184,11 @@
   .chart-scroll svg { min-width: 900px; }
 
   /* ABSENTEÍSMO */
-  .abs-months { display: flex; gap: 6px; align-items: flex-end; height: 68px; margin-bottom: 4px; }
+  .abs-months { display: flex; gap: 6px; align-items: flex-end; min-height: 96px; margin-bottom: 4px; }
   .abs-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; flex: 1 0 38px; min-width: 38px; }
   .abs-bar-track { width: 100%; background: var(--border); border-radius: 2px 2px 0 0; }
   .abs-bar-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--t3); text-transform: uppercase; margin-top: 4px; }
-  .abs-bar-val { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--t2); font-weight: 500; }
+  .abs-bar-val { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--t2); font-weight: 500; margin-bottom: 3px; }
 
   /* BANCO DE HORAS */
   .bh-row {
@@ -1158,8 +1158,9 @@ window.perfSupa = window.perfSupa || function(cb) {
   }
 
   function semKeyToLabel(k) {
+    var M = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     var p = k.split('-');
-    return p.length === 3 ? p[2] + '/' + p[1] : k;
+    return p.length === 3 ? p[2] + '/' + (M[+p[1]-1] || p[1]) : k;
   }
 
   function isTipoPag(t)  { return t.indexOf('pag')  !== -1; }
@@ -1288,7 +1289,7 @@ window.perfSupa = window.perfSupa || function(cb) {
 
   function loadBHData() {
     window.perfSupa(function(supa) {
-      supa.schema('tata_plus').rpc('banco_horas_listar', { p_semanas: 60 }).then(function(res) {
+      supa.schema('tata_plus').rpc('banco_horas_listar', { p_semanas: 104 }).then(function(res) {
         var arr = (res && !res.error && Array.isArray(res.data)) ? res.data : [];
         BH_RAW = arr.map(function(r, i) {
           return {
@@ -1369,16 +1370,18 @@ window.perfSupa = window.perfSupa || function(cb) {
     var vals = labels.map(function(l) { return counts[l]; });
     var maxN = Math.max.apply(null, vals) || 1;
     var minN = Math.min.apply(null, vals);
-    var BAR_MAX = 68; // px — igual à altura do container
+    var BAR_MAX = 68; // px
+    var MESES_ABS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     var html = labels.map(function(l) {
       var n = counts[l];
+      var pm = l.split('/'); var lbl = (MESES_ABS[+pm[0]-1] || pm[0]) + '/' + pm[1];
       // normaliza: menor barra = 20% do max, maior = 100%
       var ratio = maxN === minN ? 1 : (n - minN) / (maxN - minN);
       var px = Math.round(BAR_MAX * (0.20 + ratio * 0.80));
       return '<div class="abs-bar-wrap">' +
-        '<div class="abs-bar-track" style="height:' + px + 'px;background:var(--carbon);border-radius:2px 2px 0 0;"></div>' +
-        '<span class="abs-bar-label">' + l + '</span>' +
         '<span class="abs-bar-val">' + n + '</span>' +
+        '<div class="abs-bar-track" style="height:' + px + 'px;background:var(--carbon);border-radius:2px 2px 0 0;"></div>' +
+        '<span class="abs-bar-label">' + lbl + '</span>' +
       '</div>';
     }).join('');
     var el = document.getElementById('abs-months-bars');
@@ -1605,7 +1608,7 @@ window.perfSupa = window.perfSupa || function(cb) {
     var svg = document.getElementById('turnover-line-svg');
     if (!svg) return;
     var n = pontos.length;
-    var W = Math.max(900, n * 50), H = 240, H_PLOT = 200, pad = 24;
+    var W = Math.max(900, n * 64), H = 240, H_PLOT = 200, pad = 24;
     svg.setAttribute('width', W);
     svg.setAttribute('height', H);
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
