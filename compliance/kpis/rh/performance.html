@@ -1011,6 +1011,20 @@ window.perfSupa = window.perfSupa || function(cb) {
       }
       fillList('av-tipos-list', rows.filter(function(t){return t.tipo==='modelo';}));
       fillList('av-temas-list', rows.filter(function(t){return t.tipo==='lideranca_topico';}));
+      // Linha "Reconhecimento" (contagem, não é média /5) no painel Tipo de Avaliação
+      supa.schema('tata_plus').rpc('reconhecimento_contagem', args).then(function(rc){
+        var n=(rc&&!rc.error&&rc.data!=null)?parseInt(rc.data,10):0; if(isNaN(n)) n=0;
+        var el=document.getElementById('av-tipos-list'); if(!el) return;
+        var ph=el.querySelector('.chart-sub'); if(ph) ph.remove();
+        var old=el.querySelector('[data-recon]'); if(old) old.remove();
+        var row=document.createElement('div');
+        row.className='bar-row'; row.setAttribute('data-recon','1');
+        row.title='Reconhecimentos recebidos';
+        row.innerHTML='<div class="bar-name">Reconhecimento</div>'+
+          '<div style="grid-column:2 / 4;text-align:right;font-family:\'DM Mono\',monospace;font-size:11px;font-weight:600;color:var(--t1);">'+
+          n+' recebido'+(n===1?'':'s')+'</div>';
+        el.appendChild(row);
+      }, function(){});
     }, function(){});
   }
   window.registerPerfRenderer(render);
