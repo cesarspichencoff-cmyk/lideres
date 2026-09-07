@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-auth="pending">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operação House — Governança</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f4f4;color:#111;font-family:'DM Sans',sans-serif;min-height:100vh}.wrap{max-width:1120px;margin:0 auto;padding:20px 16px 56px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}.eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#777}.title{font-size:28px;line-height:1.12;margin:5px 0 4px;font-weight:700;letter-spacing:-.025em}.sub{font-size:14px;color:#666;line-height:1.5}.back{border:1px solid #ddd;background:#fff;color:#35383f;border-radius:8px;padding:9px 12px;text-decoration:none;font-size:12px;font-weight:600;white-space:nowrap}.status{display:flex;align-items:center;gap:8px;border:1px solid #e2e2e2;background:#fff;border-radius:10px;padding:11px 13px;margin-bottom:14px;font-size:12px;color:#555}.dot{width:8px;height:8px;border-radius:50%;background:#c4c4c4;flex:0 0 auto}.status.online .dot{background:#5b8c2a}.status.error .dot{background:#b63333}.nav{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e2e2e2;border-radius:10px;padding:10px;margin-bottom:14px}.nav button{width:34px;height:34px;border:1px solid #ddd;background:#f8f8f8;border-radius:7px;cursor:pointer;font-size:18px}.nav-center{text-align:center}.nav-week{font:500 12px 'DM Mono',monospace}.nav-dates{font:10px 'DM Mono',monospace;color:#999;margin-top:2px}.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}.kpi{background:#fff;border:1px solid #e2e2e2;border-radius:10px;padding:14px}.kpi-label{font:500 9px 'DM Mono',monospace;text-transform:uppercase;letter-spacing:.09em;color:#888}.kpi-value{font-size:25px;font-weight:700;margin-top:4px;color:#35383f}.kpi-sub{font-size:11px;color:#888;margin-top:2px}.panel{background:#fff;border:1px solid #e2e2e2;border-radius:10px;margin-bottom:14px;overflow:hidden}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border-bottom:1px solid #eee}.panel-title{font-weight:700;font-size:14px}.badge{font:500 9px 'DM Mono',monospace;text-transform:uppercase;letter-spacing:.07em;background:#35383f;color:#cfff00;padding:5px 8px;border-radius:999px}.days{display:grid;gap:0}.day{padding:13px 15px;border-bottom:1px solid #eee}.day:last-child{border-bottom:0}.day-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}.day-date{font:500 10px 'DM Mono',monospace;color:#777}.day-main{font-weight:700;font-size:14px;margin-top:4px}.day-side{font-size:12px;color:#666;margin-top:4px;line-height:1.45}.day-meals{font:500 10px 'DM Mono',monospace;color:#555;white-space:nowrap}.grid2{display:grid;grid-template-columns:1fr;gap:14px}.list{margin:0;padding:0;list-style:none}.list li{padding:11px 15px;border-bottom:1px solid #eee;font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}.list li:last-child{border-bottom:0}.muted{color:#999}.danger{color:#9b2e2e;font-weight:700}.loading{padding:36px 18px;text-align:center;color:#777;font-size:13px}.hidden-frame{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;border:0;left:-9999px;top:-9999px}html[data-auth="pending"] body>*:not(#auth-gate){visibility:hidden}html[data-auth="denied"] body>*:not(#auth-gate){display:none!important}html[data-auth="ok"] #auth-gate{display:none!important}#auth-gate{position:fixed;inset:0;z-index:99999;background:#f4f4f4;display:flex;align-items:center;justify-content:center;padding:24px}.gate-box{background:#fff;border:1px solid #e2e2e2;border-radius:16px;padding:30px;text-align:center;max-width:400px;width:100%}.gate-spin{width:28px;height:28px;border-radius:50%;border:3px solid #e2e2e2;border-top-color:#35383f;animation:spin .8s linear infinite;margin:0 auto 14px}@keyframes spin{to{transform:rotate(360deg)}}html[data-auth="pending"] .gate-denied{display:none}html[data-auth="denied"] .gate-loading{display:none}.gate-btn{display:inline-block;background:#35383f;color:#fff;text-decoration:none;border-radius:999px;padding:10px 18px;font-size:13px}@media(min-width:760px){.wrap{padding:30px 28px 64px}.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.grid2{grid-template-columns:1fr 1fr}.title{font-size:34px}}
+</style>
+</head>
+<body>
+<div id="auth-gate"><div class="gate-box"><div class="gate-loading"><div class="gate-spin"></div><strong>Verificando acesso...</strong><p class="muted">Confirmando sua permissão no TATÁ Plus.</p></div><div class="gate-denied"><strong>Sem acesso</strong><p class="muted">Seu perfil não possui permissão para esta página.</p><a class="gate-btn" href="/compliance/">Voltar ao Portal</a></div></div></div>
+
+<main class="wrap">
+  <header class="top">
+    <div><div class="eyebrow">TATÁ House · Governança</div><h1 class="title">Operação House</h1><div class="sub">Leitura direta do estado operacional do House. Nenhum dado é editado aqui.</div></div>
+    <a class="back" href="/compliance/kpis/tatahouse/">← Voltar</a>
+  </header>
+
+  <div id="status" class="status"><span class="dot"></span><span id="status-text">Aguardando o House...</span></div>
+
+  <div class="nav">
+    <button type="button" id="prev-week" aria-label="Semana anterior">‹</button>
+    <div class="nav-center"><div id="week-label" class="nav-week">—</div><div id="week-dates" class="nav-dates">—</div></div>
+    <button type="button" id="next-week" aria-label="Próxima semana">›</button>
+  </div>
+
+  <section class="kpis">
+    <div class="kpi"><div class="kpi-label">Refeições</div><div id="kpi-meals" class="kpi-value">—</div><div class="kpi-sub">servidas na semana</div></div>
+    <div class="kpi"><div class="kpi-label">Desperdício</div><div id="kpi-waste" class="kpi-value">—</div><div class="kpi-sub">sobre o produzido</div></div>
+    <div class="kpi"><div class="kpi-label">Estoque baixo</div><div id="kpi-stock" class="kpi-value">—</div><div class="kpi-sub">itens no limite</div></div>
+    <div class="kpi"><div class="kpi-label">Avaliações</div><div id="kpi-rating" class="kpi-value">—</div><div class="kpi-sub">média ponderada</div></div>
+  </section>
+
+  <section class="panel"><div class="panel-head"><div class="panel-title">Cardápio e realizado</div><span class="badge">Fonte House</span></div><div id="days" class="days"><div class="loading">Carregando semana...</div></div></section>
+
+  <div class="grid2">
+    <section class="panel"><div class="panel-head"><div class="panel-title">Estoque que pede atenção</div></div><ul id="stock-list" class="list"><li class="muted">Carregando...</li></ul></section>
+    <section class="panel"><div class="panel-head"><div class="panel-title">Desperdício registrado</div></div><ul id="waste-list" class="list"><li class="muted">Carregando...</li></ul></section>
+  </div>
+
+  <section class="panel"><div class="panel-head"><div class="panel-title">Aceitação dos pratos</div><span id="generated" class="muted"></span></div><ul id="rating-list" class="list"><li class="muted">Carregando...</li></ul></section>
+
+  <iframe id="house-frame" class="hidden-frame" title="Ponte de leitura TATÁ House" src="https://tata-house.github.io/" tabindex="-1" aria-hidden="true"></iframe>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>window.GOV_PAGE_ID = 'governanca-kpis-tatahouse-cardapio';</script>
+<script src="/compliance/gate.js"></script>
+<script>
+(function(){
+  'use strict';
+  const HOUSE_ORIGIN='https://tata-house.github.io';
+  const REQUEST='tata-house:governanca:snapshot:request:v2';
+  const RESPONSE='tata-house:governanca:snapshot:response:v2';
+  const CONTRACT='tata-house.governanca.snapshot.v2';
+  const SECTIONS=['cardapio','refeicoes','desperdicio','estoque','precos','aceitacao'];
+  const frame=document.getElementById('house-frame');
+  const status=document.getElementById('status');
+  const statusText=document.getElementById('status-text');
+  let semana=isoWeek(new Date());
+  let correlation=null;
+  let timer=null;
+
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function pad(n){return String(n).padStart(2,'0');}
+  function isoWeek(date){const d=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));const day=d.getUTCDay()||7;d.setUTCDate(d.getUTCDate()+4-day);const y=d.getUTCFullYear();const y0=new Date(Date.UTC(y,0,1));const w=Math.ceil((((d-y0)/86400000)+1)/7);return y+'-S'+pad(w);}
+  function mondayOfWeek(id){const parts=id.split('-S').map(Number),y=parts[0],w=parts[1];const jan4=new Date(Date.UTC(y,0,4));const day=jan4.getUTCDay()||7;const mon=new Date(jan4);mon.setUTCDate(jan4.getUTCDate()-day+1+(w-1)*7);return mon;}
+  function shiftWeek(id,delta){const d=mondayOfWeek(id);d.setUTCDate(d.getUTCDate()+delta*7);return isoWeek(new Date(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));}
+  function dateBR(iso){if(!iso)return'—';const p=iso.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:iso;}
+  function weekDates(id){const m=mondayOfWeek(id),s=new Date(m);s.setUTCDate(m.getUTCDate()+6);return dateBR(m.toISOString().slice(0,10))+' a '+dateBR(s.toISOString().slice(0,10));}
+  function requestId(){if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();return 'house-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);}
+  function setStatus(kind,text){status.className='status'+(kind?' '+kind:'');statusText.textContent=text;}
+  function updateNav(){document.getElementById('week-label').textContent=semana;document.getElementById('week-dates').textContent=weekDates(semana);}
+  function solicitar(){
+    updateNav();
+    correlation=requestId();
+    setStatus('', 'Consultando o TATÁ House...');
+    if(timer)clearTimeout(timer);
+    timer=setTimeout(()=>setStatus('error','House não respondeu. Esta shadow ainda precisa de prova browser-a-browser.'),7000);
+    try{frame.contentWindow.postMessage({type:REQUEST,correlationId:correlation,semanaId:semana,secoes:SECTIONS},HOUSE_ORIGIN);}catch(e){setStatus('error','Não foi possível consultar o House.');}
+  }
+  function totalMeals(s){return (s.semana&&Array.isArray(s.semana.dias)?s.semana.dias:[]).reduce((sum,d)=>sum+(d.servido&&d.servido.totais?Number(d.servido.totais.total)||0:0),0);}
+  function weightedRating(s){const items=s.aceitacao&&Array.isArray(s.aceitacao.itens)?s.aceitacao.itens:[];let n=0,total=0;items.forEach(i=>{if(Number.isFinite(i.media)&&Number(i.n)>0){n+=Number(i.n);total+=Number(i.media)*Number(i.n);}});return n?total/n:null;}
+  function render(snapshot){
+    document.getElementById('kpi-meals').textContent=totalMeals(snapshot).toLocaleString('pt-BR');
+    document.getElementById('kpi-waste').textContent=snapshot.desperdicio&&snapshot.desperdicio.taxa!=null?(snapshot.desperdicio.taxa*100).toFixed(1).replace('.',',')+'%':'—';
+    document.getElementById('kpi-stock').textContent=snapshot.estoque?String(snapshot.estoque.itensBaixos):'—';
+    const wr=weightedRating(snapshot);document.getElementById('kpi-rating').textContent=wr==null?'—':wr.toFixed(1).replace('.',',');
+    document.getElementById('generated').textContent=snapshot.geradoEm?'Atualizado '+new Date(snapshot.geradoEm).toLocaleString('pt-BR'):'';
+
+    const dias=snapshot.semana&&Array.isArray(snapshot.semana.dias)?snapshot.semana.dias:[];
+    document.getElementById('days').innerHTML=dias.length?dias.map(d=>{const c=d.cardapio||{},t=d.servido&&d.servido.totais;const side=[c.guarnicaoFixa,c.guarnicao,c.salada,c.sobremesa].filter(Boolean).map(esc).join(' · ');let pontos='';if(d.servido&&d.servido.porPonto){const p=d.servido.porPonto;const it=p.itaim,pi=p.pinheiros;const sum=x=>x?(Number(x.almoco)||0)+(Number(x.jantar)||0)+(Number(x.marmitas)||0):0;pontos=' · Itaim '+sum(it)+' / Pinheiros '+sum(pi);}return '<div class="day"><div class="day-top"><div><div class="day-date">'+esc(dateBR(d.data))+'</div><div class="day-main">'+esc(c.principal||'Sem principal definido')+'</div></div><div class="day-meals">'+(t?esc(t.total)+' refeições':'sem contagem')+esc(pontos)+'</div></div><div class="day-side">'+(side||'Sem acompanhamentos definidos')+'</div></div>';}).join(''):'<div class="loading">Sem dados para esta semana.</div>';
+
+    const stock=snapshot.estoque&&Array.isArray(snapshot.estoque.itens)?snapshot.estoque.itens.filter(i=>i.baixo):[];
+    document.getElementById('stock-list').innerHTML=stock.length?stock.slice(0,20).map(i=>'<li><span>'+esc(i.item)+'</span><span class="danger">'+esc(i.qtd)+' '+esc(i.unid)+' / mín. '+esc(i.minimo)+'</span></li>').join(''):'<li class="muted">Nenhum item abaixo do limite.</li>';
+
+    const waste=snapshot.desperdicio&&Array.isArray(snapshot.desperdicio.registros)?snapshot.desperdicio.registros:[];
+    document.getElementById('waste-list').innerHTML=waste.length?waste.slice(0,20).map(i=>'<li><span>'+esc(dateBR(i.data))+' · '+esc(i.prato)+'</span><span>'+esc(i.desperdicio)+' '+esc(i.unid)+' · '+(i.taxa==null?'—':(i.taxa*100).toFixed(1).replace('.',',')+'%')+'</span></li>').join(''):'<li class="muted">Sem desperdício registrado na semana.</li>';
+
+    const ratings=snapshot.aceitacao&&Array.isArray(snapshot.aceitacao.itens)?snapshot.aceitacao.itens.slice().sort((a,b)=>(b.n||0)-(a.n||0)):[];
+    document.getElementById('rating-list').innerHTML=ratings.length?ratings.slice(0,25).map(i=>'<li><span>'+esc(i.prato)+'</span><span>'+(i.media==null?'—':Number(i.media).toFixed(1).replace('.',','))+' · '+esc(i.n)+' avaliação'+(Number(i.n)===1?'':'ões')+'</span></li>').join(''):'<li class="muted">Sem avaliações registradas.</li>';
+  }
+
+  window.addEventListener('message',function(event){
+    if(event.origin!==HOUSE_ORIGIN||event.source!==frame.contentWindow)return;
+    const msg=event.data;
+    if(!msg||typeof msg!=='object'||msg.type!==RESPONSE||msg.correlationId!==correlation)return;
+    if(timer)clearTimeout(timer);
+    if(msg.ok!==true||!msg.payload){setStatus('error',msg.erro||'House respondeu com erro.');return;}
+    const s=msg.payload;
+    if(s.contrato!==CONTRACT||s.versao!==2||s.modo!=='read-only'||s.fonte!=='tata-house'||s.semanaId!==semana){setStatus('error','Resposta do House não passou na validação do contrato.');return;}
+    render(s);setStatus('online','Conectado ao TATÁ House · somente leitura');
+  });
+  frame.addEventListener('load',solicitar);
+  document.getElementById('prev-week').addEventListener('click',()=>{semana=shiftWeek(semana,-1);solicitar();});
+  document.getElementById('next-week').addEventListener('click',()=>{semana=shiftWeek(semana,1);solicitar();});
+  updateNav();
+})();
+</script>
+</body>
+</html>
