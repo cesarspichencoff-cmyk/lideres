@@ -1,0 +1,95 @@
+name: TATA House governance phase2 shadow gate
+
+on:
+  push:
+    branches: [feat/house-governanca-phase2]
+    paths:
+      - 'compliance/kpis/tatahouse/operacao-house.html'
+      - '.github/workflows/tatahouse-governanca-phase2-temp.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify-and-wire:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/house-governanca-phase2
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify read-only House panel
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('compliance/kpis/tatahouse/operacao-house.html')
+          s=p.read_text()
+          required=[
+            "window.GOV_PAGE_ID = 'governanca-kpis-tatahouse-cardapio'",
+            "const HOUSE_ORIGIN='https://tata-house.github.io'",
+            "tata-house:governanca:snapshot:request:v2",
+            "tata-house:governanca:snapshot:response:v2",
+            "tata-house.governanca.snapshot.v2",
+            "event.origin!==HOUSE_ORIGIN",
+            "event.source!==frame.contentWindow",
+            "modo!=='read-only'",
+            "fonte!=='tata-house'",
+            "src=\"/compliance/gate.js\"",
+          ]
+          missing=[x for x in required if x not in s]
+          if missing: raise SystemExit('missing invariants: '+repr(missing))
+          forbidden=['.rpc(', '.__lideresSupa', "schema('tata_refeicoes')", '.from(']
+          found=[x for x in forbidden if x in s]
+          if found: raise SystemExit('direct central data access forbidden: '+repr(found))
+          if s.count('https://tata-house.github.io/') != 1:
+            raise SystemExit('House iframe URL must be unique')
+          if 'funcionarios' in s or 'login.pins' in s or 'notas fiscais' in s:
+            raise SystemExit('sensitive domain leaked into panel')
+          PY
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('compliance/kpis/tatahouse/operacao-house.html').read_text()
+          scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',s,re.S)
+          inline=[x for x in scripts if x.strip()]
+          if len(inline)<2: raise SystemExit('expected gate id + app inline scripts')
+          Path('/tmp/house-panel.js').write_text('\n'.join(inline))
+          PY
+          node --check /tmp/house-panel.js
+      - name: Wire entry card deterministically
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('compliance/kpis/tatahouse/index.html')
+          s=p.read_text()
+          if 'operacao-house.html' in s:
+            raise SystemExit('entry already exists before bounded patch')
+          anchor='''        <span class="ac-chip-label">Cardápio</span>\n      </div>'''
+          if s.count(anchor)!=1:
+            raise SystemExit(f'Cardápio anchor count={s.count(anchor)}')
+          card='''\n\n      <!-- Operação House — leitura direta da fonte canônica House -->\n      <div class="ac-dept-chip" data-access-id="governanca-kpis-tatahouse-cardapio" data-access-url="/compliance/kpis/tatahouse/cardapio" onclick="location.href='operacao-house.html'" style="cursor:pointer">\n        <div class="ac-chip-icon">\n          <svg viewBox="0 0 24 24"><path d="M3 12h4l2-7 4 14 2-7h6"/><circle cx="4" cy="12" r="1"/><circle cx="20" cy="12" r="1"/></svg>\n        </div>\n        <span class="ac-chip-label">Operação House</span>\n      </div>'''
+          s=s.replace(anchor,anchor+card,1)
+          p.write_text(s)
+          PY
+          grep -F "location.href='operacao-house.html'" compliance/kpis/tatahouse/index.html
+          test "$(grep -Fc 'Operação House' compliance/kpis/tatahouse/index.html)" -eq 2
+          git diff --check
+      - name: Verify bounded diff
+        shell: bash
+        run: |
+          files="$(git diff --name-only)"
+          test "$files" = "compliance/kpis/tatahouse/index.html"
+          ! grep -q "operacao-house.html" compliance/kpis/tatahouse/cardapio.html || true
+      - name: Commit menu only after gates pass
+        shell: bash
+        run: |
+          git config user.name 'VÉRTICE CI'
+          git config user.email 'actions@users.noreply.github.com'
+          git add compliance/kpis/tatahouse/index.html
+          git commit -m 'feat(lideres): expose read-only House operations entry'
+          git push origin HEAD:feat/house-governanca-phase2
