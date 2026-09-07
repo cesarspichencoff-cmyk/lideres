@@ -111,7 +111,7 @@
   .kpi-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; }
   .kpi-card .kpi-number { font-size: 28px; }
   /* Linha 1: Avaliação Geral (compacta) + Avaliação por Tema (mais larga) */
-  .grid-aval { display: grid; grid-template-columns: 300px 1fr; gap: 12px; margin-bottom: 12px; }
+  .grid-aval { display: grid; grid-template-columns: 260px 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 
   /* CARD BASE */
   .card {
@@ -598,14 +598,12 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
 <!-- KPIs TOPO: Total Colaboradores + CMO (faixa full-width, padrão recrutamento) -->
 <div class="kpis-wrap">
   <div class="kpi-card">
-    <span class="kpi-label">Total de Colaboradores</span>
+    <span class="kpi-label">Colaboradores</span>
     <span class="kpi-number" id="kpi-total-colabs">—</span>
-    <span class="kpi-sub">ativos</span>
   </div>
   <div class="kpi-card">
-    <span class="kpi-label">Custo Total — CMO</span>
+    <span class="kpi-label">CMO</span>
     <span class="kpi-number" id="kpi-custo-total">—</span>
-    <span class="kpi-sub">salário × 1,7</span>
   </div>
 </div>
 
@@ -657,6 +655,15 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
           </div>
           <div class="stars" id="av-geral-stars"></div>
           <div class="chart-sub" id="av-geral-sub" style="margin:0;"></div>
+        </div>
+      </div>
+
+      <div class="chart-block">
+        <div class="chart-title-row">
+          <span class="chart-title-text">Tipo de Avaliação</span>
+        </div>
+        <div class="bar-list" id="av-tipos-list" style="max-height:230px;overflow-y:auto;">
+          <div class="chart-sub" style="margin:0;">Carregando…</div>
         </div>
       </div>
 
@@ -990,21 +997,20 @@ window.perfSupa = window.perfSupa || function(cb) {
     }, function(){});
     supa.schema('tata_plus').rpc('avaliacao_temas', args).then(function(r){
       var rows=(r&&!r.error&&Array.isArray(r.data))?r.data:[];
-      var el=document.getElementById('av-temas-list'); if(!el) return;
-      if(!rows.length){ el.innerHTML='<div class="chart-sub" style="margin:0;">Sem dados</div>'; return; }
-      var html='', lidHeader=false;
-      rows.forEach(function(t){
-        if(t.tipo==='lideranca_topico' && !lidHeader){
-          html+='<div class="chart-sub" style="margin:8px 0 2px;">Liderança — por tópico</div>';
-          lidHeader=true;
-        }
+      function nome(t){ return t.tipo==='modelo' ? curto(t.tema) : String(t.tema).replace('Segurança Psicológica','Seg. Psicológica'); }
+      function barHtml(t){
         var m=parseFloat(t.media), pct=isNaN(m)?0:Math.max(0,Math.min(100,(m/5)*100));
-        html+='<div class="bar-row" title="'+esc(t.tema)+(t.n?(' · '+t.n+' resp.'):'')+'">'+
-          '<div class="bar-name">'+esc(t.tipo==='modelo'?curto(t.tema):t.tema)+'</div>'+
+        return '<div class="bar-row" title="'+esc(t.tema)+(t.n?(' · '+t.n+' resp.'):'')+'">'+
+          '<div class="bar-name">'+esc(nome(t))+'</div>'+
           '<div class="bar-track"><div class="bar-fill" style="width:'+pct.toFixed(0)+'%"></div></div>'+
           '<div class="bar-val">'+fmt(t.media)+'</div></div>';
-      });
-      el.innerHTML=html;
+      }
+      function fillList(id, arr){
+        var el=document.getElementById(id); if(!el) return;
+        el.innerHTML = arr.length ? arr.map(barHtml).join('') : '<div class="chart-sub" style="margin:0;">Sem dados</div>';
+      }
+      fillList('av-tipos-list', rows.filter(function(t){return t.tipo==='modelo';}));
+      fillList('av-temas-list', rows.filter(function(t){return t.tipo==='lideranca_topico';}));
     }, function(){});
   }
   window.registerPerfRenderer(render);
