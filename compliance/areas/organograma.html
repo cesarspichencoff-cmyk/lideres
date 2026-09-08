@@ -528,6 +528,31 @@
     overflow: hidden; border: 3px solid var(--carbon);
   }
   .modal-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .modal-avatar.clickable { cursor: zoom-in; }
+  .modal-avatar.clickable:hover { border-color: var(--vinho); }
+  /* Lightbox da foto — clicar na foto do modal amplia */
+  .photo-lightbox {
+    position: fixed; inset: 0; z-index: 4000;
+    background: rgba(0,0,0,.85);
+    display: none; align-items: center; justify-content: center;
+    padding: 24px; cursor: zoom-out;
+    animation: photoLightboxIn .12s ease-out;
+  }
+  .photo-lightbox.show { display: flex; }
+  .photo-lightbox img {
+    max-width: 92vw; max-height: 88vh; object-fit: contain;
+    border-radius: 14px; border: 3px solid #FFFFFF;
+    box-shadow: 0 24px 70px rgba(0,0,0,.55);
+  }
+  .photo-lightbox-close {
+    position: absolute; top: 18px; right: 18px;
+    width: 40px; height: 40px; border-radius: 50%;
+    border: none; background: rgba(255,255,255,.14); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .photo-lightbox-close:hover { background: rgba(255,255,255,.28); }
+  .photo-lightbox-close svg { width: 18px; height: 18px; stroke: #FFFFFF; fill: none; stroke-width: 2.4; stroke-linecap: round; }
+  @keyframes photoLightboxIn { from { opacity: 0; } to { opacity: 1; } }
   .modal h3 { font-size: 18px; font-weight: 700; color: var(--carbon); letter-spacing: -0.3px; text-align: center; margin-bottom: 4px; }
   .modal-role { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); text-align: center; margin-bottom: 9px; }
   /* selos de avaliação — círculos com check (apagados por padrão, acendem conforme avaliações) */
@@ -969,6 +994,14 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
       <button class="modal-btn-cargo" id="btnRemuneracao" onclick="abrirRemuneracao()">REMUNERAÇÃO</button>
     </div>
   </div>
+</div>
+
+<!-- LIGHTBOX DA FOTO -->
+<div class="photo-lightbox" id="photoLightbox" onclick="closePhotoLightbox()">
+  <button class="photo-lightbox-close" type="button" aria-label="Fechar" onclick="closePhotoLightbox()">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <img id="photoLightboxImg" src="" alt=""/>
 </div>
 
 <!-- SUB-MODAL: DESC. DO CARGO -->
@@ -2268,9 +2301,13 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
     _modalNode = n;
     var avatarEl = document.getElementById('mAvatar');
     if (n.foto) {
-      avatarEl.innerHTML = '<img src="' + escapeHtml(n.foto) + '" onerror="this.parentNode.innerHTML=\'' + escapeHtml(n.iniciais || '?') + '\'"/>';
+      avatarEl.innerHTML = '<img src="' + escapeHtml(n.foto) + '" onerror="this.parentNode.innerHTML=\'' + escapeHtml(n.iniciais || '?') + '\';this.parentNode.classList.remove(\'clickable\');this.parentNode.onclick=null;"/>';
+      avatarEl.classList.add('clickable');
+      avatarEl.onclick = function() { openPhotoLightbox(n.foto, n.nome); };
     } else {
       avatarEl.textContent = n.iniciais || '?';
+      avatarEl.classList.remove('clickable');
+      avatarEl.onclick = null;
     }
     document.getElementById('mName').textContent = n.nome;
     document.getElementById('mRole').textContent = n.cargo;
@@ -2403,6 +2440,19 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
     document.getElementById('modal').classList.remove('modal-bg--hidden');
   };
 
+  function openPhotoLightbox(src, alt) {
+    if (!src) return;
+    var img = document.getElementById('photoLightboxImg');
+    img.src = src;
+    img.alt = alt || '';
+    document.getElementById('photoLightbox').classList.add('show');
+  }
+  window.closePhotoLightbox = function() {
+    var lb = document.getElementById('photoLightbox');
+    lb.classList.remove('show');
+    document.getElementById('photoLightboxImg').src = '';
+  };
+
   window.closeModal = function() {
     document.getElementById('modal').classList.remove('show');
     closeSubModal('subModalCargo');
@@ -2499,7 +2549,11 @@ window.openDrawer = function() {
   };
 
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeDrawer(); closeModal(); }
+    if (e.key === 'Escape') {
+      var _lb = document.getElementById('photoLightbox');
+      if (_lb && _lb.classList.contains('show')) { closePhotoLightbox(); return; }
+      closeDrawer(); closeModal();
+    }
   });
 
   // ============================================
