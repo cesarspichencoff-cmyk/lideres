@@ -650,6 +650,26 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
 
   <div class="stack-cards">
 
+    <!-- NOTAS DOS LÍDERES: por Unidade + por Departamento -->
+    <div class="grid-aval">
+      <div class="chart-block">
+        <div class="chart-title-row">
+          <span class="chart-title-text">Notas dos Líderes — por Unidade</span>
+        </div>
+        <div class="bar-list" id="lid-uni-list" style="max-height:230px;overflow-y:auto;">
+          <div class="chart-sub" style="margin:0;">Carregando…</div>
+        </div>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title-row">
+          <span class="chart-title-text">Notas dos Líderes — por Departamento</span>
+        </div>
+        <div class="bar-list" id="lid-dep-list" style="max-height:230px;overflow-y:auto;">
+          <div class="chart-sub" style="margin:0;">Carregando…</div>
+        </div>
+      </div>
+    </div>
+
     <!-- LINHA 1: TIPO DE AVALIAÇÃO + AVALIAÇÃO POR TEMA -->
     <div class="grid-aval">
       <div class="chart-block">
@@ -674,7 +694,7 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
     <!-- LINHA 2: TURNOVER -->
     <div class="chart-block">
       <div class="chart-title-row">
-        <span class="chart-title-text">Turnover — Demissional (mensal)</span>
+        <span class="chart-title-text">Turnover Demissional</span>
       </div>
       <div class="chart-scroll">
         <svg id="turnover-line-svg" style="height:240px;display:block;"></svg>
@@ -725,11 +745,9 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
     <!-- LINHA 6: PRODUTIVIDADE -->
     <div class="chart-block">
       <div class="chart-title-row">
-        <span class="chart-title-text">Produtividade — Mensal</span>
+        <span class="chart-title-text">Produtividade</span>
       </div>
-      <div class="chart-scroll">
-        <svg id="prod-bar-svg" viewBox="0 0 900 220" preserveAspectRatio="none" style="width:100%;height:220px;display:block;"></svg>
-      </div>
+      <div style="display:flex;align-items:center;justify-content:center;height:180px;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--t3);">Em construção</div>
     </div>
 
     <!-- LINHA 7: COLABORADORES -->
@@ -1785,7 +1803,10 @@ function _renderColabRow(c) {
   var avatar = c.foto
     ? '<div class="colab-avatar" style="overflow:hidden;padding:0;"><img src="' + c.foto + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML=\'' + safeIni + '\'"/></div>'
     : '<div class="colab-avatar">' + ini + '</div>';
-  return '<tr><td><div class="colab-cell">' + avatar + '<div><div class="colab-name">' + c.nome + '</div><div class="colab-role">' + role + '</div></div></div></td><td style="text-align:right;font-family:\'DM Mono\',monospace;font-weight:700;color:var(--t3);">—</td></tr>';
+  var _nt = (window._notaColab && window._notaColab[String(c.matricula || c.id)]);
+  var notaTxt = (_nt == null || _nt === '') ? '—' : parseFloat(_nt).toFixed(1).replace('.', ',');
+  var notaCor = (notaTxt === '—') ? 'var(--t3)' : 'var(--t1)';
+  return '<tr><td><div class="colab-cell">' + avatar + '<div><div class="colab-name">' + c.nome + '</div><div class="colab-role">' + role + '</div></div></div></td><td style="text-align:right;font-family:\'DM Mono\',monospace;font-weight:700;color:' + notaCor + ';">' + notaTxt + '</td></tr>';
 }
 
 function _renderColabsTable(limit) {
@@ -1857,6 +1878,44 @@ function colabsRender(state) {
   }
 }
 window.colabsRender = colabsRender;
+
+// Nota média por colaborador (para a coluna Nota da tabela)
+window._notaColab = window._notaColab || {};
+(function() {
+  window.perfSupa(function(supa) {
+    supa.schema('tata_plus').rpc('colaborador_notas').then(function(r) {
+      var arr = (r && !r.error && Array.isArray(r.data)) ? r.data : [];
+      arr.forEach(function(x) { if (x.matricula != null) window._notaColab[String(x.matricula)] = x.nota; });
+      if (typeof window.colabsRender === 'function' && window.perfState) window.colabsRender(window.perfState);
+    }, function() {});
+  });
+})();
+
+// Notas dos Líderes — por Unidade e por Departamento (reage aos filtros)
+(function() {
+  function esc(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function fmt(v){ if(v==null||v==='') return '—'; var n=parseFloat(v); return isNaN(n)?'—':n.toFixed(1).replace('.',','); }
+  function barRow(nome, media, n){
+    var m=parseFloat(media), pct=isNaN(m)?0:Math.max(0,Math.min(100,(m/5)*100));
+    return '<div class="bar-row" title="'+esc(nome)+(n?(' · '+n+' aval.'):'')+'">'+
+      '<div class="bar-name">'+esc(nome)+'</div>'+
+      '<div class="bar-track"><div class="bar-fill" style="width:'+pct.toFixed(0)+'%"></div></div>'+
+      '<div class="bar-val">'+fmt(media)+'</div></div>';
+  }
+  function fill(id, rows){
+    var el=document.getElementById(id); if(!el) return;
+    el.innerHTML = (rows&&rows.length) ? rows.map(function(r){ return barRow(r.rotulo, r.media, r.n); }).join('')
+                                       : '<div class="chart-sub" style="margin:0;">Sem dados</div>';
+  }
+  function render(state){
+    var supa=window.__lideresSupa; if(!supa) return;
+    var base={ p_unidade:(state.unidade&&state.unidade!=='Todos')?state.unidade:'', p_departamento:(state.depto&&state.depto!=='Todos')?state.depto:'' };
+    supa.schema('tata_plus').rpc('lideranca_notas_grupo', { p_por:'unidade', p_unidade:base.p_unidade, p_departamento:base.p_departamento }).then(function(r){ fill('lid-uni-list',(r&&!r.error&&r.data)||[]); }, function(){});
+    supa.schema('tata_plus').rpc('lideranca_notas_grupo', { p_por:'departamento', p_unidade:base.p_unidade, p_departamento:base.p_departamento }).then(function(r){ fill('lid-dep-list',(r&&!r.error&&r.data)||[]); }, function(){});
+  }
+  window.registerPerfRenderer(render);
+  window.perfSupa(function(){ render(window.perfState); });
+})();
 
 function showLoading() { var el = document.getElementById('loading-overlay'); if (el) el.classList.add('show'); }
 function hideLoading() { var el = document.getElementById('loading-overlay'); if (el) el.classList.remove('show'); }
