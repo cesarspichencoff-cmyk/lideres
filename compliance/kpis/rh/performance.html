@@ -97,7 +97,7 @@
   .filter-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; color: var(--t2); }
   .filter-select { appearance: none; background: var(--bg) url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 7L11 1' stroke='%23555' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center; border: 1px solid var(--border); border-radius: var(--r); padding: 9px 36px 9px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--t1); cursor: pointer; width: 100%; }
   .filter-select:focus { outline: none; border-color: var(--carbon); }
-  .filters-actions { display: flex; align-items: center; justify-content: flex-end; padding-top: 2px; }
+  .filters-actions { display: flex; align-items: center; justify-content: space-between; padding-top: 2px; }
   .btn-clear { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.5px; color: var(--t3); background: none; border: none; cursor: pointer; padding: 4px 0; text-transform: uppercase; text-decoration: underline; text-underline-offset: 2px; }
   .btn-clear:hover { color: var(--carbon); }
   .kpi-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; color: var(--t2); }
@@ -412,12 +412,9 @@
 
 /* KPIs no topo (específico) */
 .pend-kpis { background:var(--white); border-bottom:1px solid var(--border); padding:14px 20px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-.pend-kpi { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px 14px; text-align:center; }
-.pend-kpi-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.8px; text-transform:uppercase; color:var(--t3); display:block; margin-bottom:4px; }
-.pend-kpi-num { font-size:24px; font-weight:700; color:var(--carbon); line-height:1; font-variant-numeric:tabular-nums; }
-.pend-toolbar { padding:14px 20px 2px; display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap; }
-.pend-toolbar .results-count { margin-left:auto; font-family:'DM Mono',monospace; font-size:11px; color:var(--t3); }
-.pend-toolbar .results-count span { color:var(--carbon); font-weight:600; }
+.pend-kpi { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px 14px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:4px; }
+.pend-kpi-label { font-family:'DM Mono',monospace; font-size:10px; font-weight:500; letter-spacing:.8px; text-transform:uppercase; color:var(--t2); display:block; }
+.pend-kpi-num { font-size:28px; font-weight:700; color:var(--carbon); line-height:1; font-variant-numeric:tabular-nums; }
 #pend-grid { padding:16px 20px; }
 .pend-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
 .pend-empty { text-align:center; padding:48px 20px; color:var(--t3); font-size:14px; line-height:1.6; }
@@ -645,6 +642,7 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
   </div>
   <div class="filters-actions">
     <button class="btn-clear" onclick="clearFilters()">Limpar filtros</button>
+    <span class="results-count"><span id="kpi-count-n">—</span> resultado(s)</span>
   </div>
 </div>
 
@@ -795,16 +793,21 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
 
 <div id="view-pendentes" class="dash-view">
   <div class="pend-kpis" id="pend-kpis"></div>
-  <div class="pend-toolbar">
-    <div class="filter-group">
-      <label class="filter-label">Unidade</label>
-      <select class="filter-select" id="pend-f-unidade" onchange="pendRender()"><option value="">Todas as unidades</option></select>
+  <div class="filters-wrap">
+    <div class="filters-row">
+      <div class="filter-group">
+        <label class="filter-label">Unidade</label>
+        <select class="filter-select" id="pend-f-unidade" onchange="pendRender()"><option value="">Todas as unidades</option></select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Departamento</label>
+        <select class="filter-select" id="pend-f-depto" onchange="pendRender()"><option value="">Todos os departamentos</option></select>
+      </div>
     </div>
-    <div class="filter-group">
-      <label class="filter-label">Departamento</label>
-      <select class="filter-select" id="pend-f-depto" onchange="pendRender()"><option value="">Todos os departamentos</option></select>
+    <div class="filters-actions">
+      <button class="btn-clear" onclick="pendClear()">Limpar filtros</button>
+      <span class="results-count"><span id="pend-count">—</span> pendente(s)</span>
     </div>
-    <span class="results-count"><span id="pend-count">—</span> pendente(s)</span>
   </div>
   <div id="pend-grid"><div class="pend-empty">Carregando…</div></div>
 </div><!-- /view-pendentes -->
@@ -1862,6 +1865,7 @@ function colabsRender(state) {
   if (kpi) kpi.textContent = total;
   var lbl = document.getElementById('colab-count-label');
   if (lbl) lbl.textContent = '— ' + total + ' RESULTADOS';
+  var cnt = document.getElementById('kpi-count-n'); if (cnt) cnt.textContent = total;
   _renderColabsTable(_colabsShowing);
   var wrap = document.getElementById('ver-mais-wrap-colabs');
   var btn  = document.getElementById('btn-ver-mais-colabs');
@@ -2268,6 +2272,11 @@ function setTab(t){
     dSel.innerHTML='<option value="">Todos os departamentos</option>'+Object.keys(ds).sort().map(function(d){return '<option>'+esc(d)+'</option>';}).join('');
   }
 
+  window.pendClear=function(){
+    var u=document.getElementById('pend-f-unidade'); if(u) u.value='';
+    var d=document.getElementById('pend-f-depto'); if(d) d.value='';
+    window.pendRender();
+  };
   window.pendRender=function(){
     var due=ROWS.filter(function(r){return r.due;});
     var uf=(document.getElementById('pend-f-unidade')||{}).value||'', df=(document.getElementById('pend-f-depto')||{}).value||'';
