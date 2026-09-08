@@ -1934,7 +1934,7 @@ window._notaColab = window._notaColab || {};
   function render(state){
     var supa=window.__lideresSupa; if(!supa) return;
     var base={ p_unidade:(state.unidade&&state.unidade!=='Todos')?state.unidade:'', p_departamento:(state.depto&&state.depto!=='Todos')?state.depto:'' };
-    supa.schema('tata_plus').rpc('performance_grupo', { p_por:'unidade', p_unidade:base.p_unidade, p_departamento:base.p_departamento }).then(function(r){ fillVert('lid-uni-list',(r&&!r.error&&r.data)||[]); }, function(){});
+    supa.schema('tata_plus').rpc('performance_grupo', { p_por:'unidade', p_unidade:base.p_unidade, p_departamento:base.p_departamento }).then(function(r){ fill('lid-uni-list',(r&&!r.error&&r.data)||[]); }, function(){});
     supa.schema('tata_plus').rpc('performance_grupo', { p_por:'departamento', p_unidade:base.p_unidade, p_departamento:base.p_departamento }).then(function(r){ fill('lid-dep-list',(r&&!r.error&&r.data)||[]); }, function(){});
   }
   window.registerPerfRenderer(render);
