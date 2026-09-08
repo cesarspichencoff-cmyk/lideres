@@ -1713,28 +1713,6 @@ function _armHtmlParaPdfBlob(pageHtml) {
   enviar({ tp: 'gov-pin-query', id: PAGE.id });
 })();
 <\/script>
-<script>
-/* ══ ZOOM ══ */
-(function(){
-  var KEY='lideres-zoom', MIN=0.7, MAX=1.6, STEP=0.1, DEF=1;
-  function clamp(v){ return Math.min(MAX, Math.max(MIN, Math.round(v*10)/10)); }
-  var z=DEF;
-  try{ var s=parseFloat(localStorage.getItem(KEY)); if(!isNaN(s)) z=clamp(s); }catch(e){}
-  function apply(){
-    var content=document.getElementById('zoom-content');
-    if(content) content.style.zoom=z;
-    document.documentElement.style.zoom='';
-    try{ localStorage.setItem(KEY,String(z)); }catch(e){}
-    var pct=Math.round(z*100)+'%';
-    var out=document.getElementById('btn-zoom-out'), inb=document.getElementById('btn-zoom-in');
-    if(out){ out.disabled=(z<=MIN); out.title='Diminuir zoom · '+pct; }
-    if(inb){ inb.disabled=(z>=MAX); inb.title='Aumentar zoom · '+pct; }
-  }
-  window.zoomIn=function(){ z=clamp(z+STEP); apply(); };
-  window.zoomOut=function(){ z=clamp(z-STEP); apply(); };
-  apply();
-})();
-</script>
 </body></html>`;
     iframe.srcdoc = htmlDoc;
   });
@@ -2031,6 +2009,28 @@ function hardRefresh() {
     }).then(reload).catch(reload);
   } else { reload(); }
 }
+</script>
+<script>
+/* ══ ZOOM ══ */
+(function(){
+  var KEY='lideres-zoom', MIN=0.7, MAX=1.6, STEP=0.1, DEF=1;
+  function clamp(v){ return Math.min(MAX, Math.max(MIN, Math.round(v*10)/10)); }
+  var z=DEF;
+  try{ var s=parseFloat(localStorage.getItem(KEY)); if(!isNaN(s)) z=clamp(s); }catch(e){}
+  function apply(){
+    var content=document.getElementById('zoom-content');
+    if(content) content.style.zoom=z;
+    document.documentElement.style.zoom='';
+    try{ localStorage.setItem(KEY,String(z)); }catch(e){}
+    var pct=Math.round(z*100)+'%';
+    var out=document.getElementById('btn-zoom-out'), inb=document.getElementById('btn-zoom-in');
+    if(out){ out.disabled=(z<=MIN); out.title='Diminuir zoom · '+pct; }
+    if(inb){ inb.disabled=(z>=MAX); inb.title='Aumentar zoom · '+pct; }
+  }
+  window.zoomIn=function(){ z=clamp(z+STEP); apply(); };
+  window.zoomOut=function(){ z=clamp(z-STEP); apply(); };
+  apply();
+})();
 </script>
 </body>
 </html>
