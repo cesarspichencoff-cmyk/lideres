@@ -274,9 +274,11 @@
   .colab-role { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.06em; }
   .table-wrap { overflow-x: auto; }
   .table-wrap table { width: 100%; border-collapse: collapse; }
-  .table-wrap thead th { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; color: var(--t3); padding: 8px 10px; text-align: left; border-bottom: 2px solid var(--carbon); background: var(--bg); }
-  .table-wrap tbody td { padding: 10px 10px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .table-wrap thead th { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; color: var(--t3); padding: 8px 6px; text-align: left; border-bottom: 2px solid var(--carbon); background: var(--white); white-space: nowrap; }
+  .table-wrap tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
   .table-wrap tbody tr:hover { background: #FAFAFA; }
+  .table-wrap tbody tr:last-child { border-bottom: none; }
+  .table-wrap tbody td { padding: 8px 6px; font-size: 13px; font-weight: 400; color: var(--carbon); vertical-align: middle; }
   .ver-mais-wrap { display: flex; justify-content: center; padding: 16px 0 4px; }
   .btn-ver-mais { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; background: var(--carbon); color: var(--citric); border: none; border-radius: var(--r); font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; cursor: pointer; text-decoration: none; }
 
