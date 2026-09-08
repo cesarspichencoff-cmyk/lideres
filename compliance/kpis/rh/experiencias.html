@@ -32,6 +32,7 @@ body { font-family: 'DM Mono', monospace; background: var(--bg); color: var(--ca
 #btn-hard-refresh.is-loading svg { animation: hr-spin .7s linear infinite; }
 #btn-hard-refresh.is-loading { pointer-events: none; opacity: .7; }
 #btn-pin.is-pinned svg { fill: var(--citric); }
+#btn-zoom-out:disabled,#btn-zoom-in:disabled{opacity:.32;cursor:default;}
 
 /* FILTERS */
 .filters-wrap { background: var(--white); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; flex-direction: column; gap: 10px; }
@@ -377,6 +378,12 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
   <button class="header-plus" id="btn-hard-refresh" onclick="hardRefresh()" title="Atualizar">
     <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
   </button>
+  <button class="header-plus" id="btn-zoom-out" onclick="zoomOut()" title="Diminuir zoom">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+  </button>
+  <button class="header-plus" id="btn-zoom-in" onclick="zoomIn()" title="Aumentar zoom">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/></svg>
+  </button>
   <button class="header-plus" id="btn-pin" onclick="pinNoApp()" title="Fixar no menu do app" style="display:none">
     <svg viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
   </button>
@@ -385,6 +392,8 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
     <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
 </header>
+
+<div id="zoom-content">
 
 <div class="tabs">
   <button data-aba-id="governanca-kpis-rh-experiencias::experiencias" class="tab-btn active" id="tab-experiencias" onclick="setTab('experiencias')">Pendências</button>
@@ -527,6 +536,7 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
 
 <div class="toast" id="toast"></div>
 
+</div><!-- /zoom-content -->
 <footer class="footer">
   <span class="footer-module">TATÁ SUSHI &nbsp;|&nbsp; TATÁ POKE &nbsp;|&nbsp; 2016 – 2026</span>
   <span class="footer-date" id="footer-date"></span>
@@ -1411,6 +1421,28 @@ function hardRefresh() {
   });
   window.pinNoApp = function () { enviar({ tp: 'gov-pin-toggle', page: PAGE }); };
   enviar({ tp: 'gov-pin-query', id: PAGE.id });
+})();
+</script>
+<script>
+/* ══ ZOOM ══ */
+(function(){
+  var KEY='lideres-zoom', MIN=0.7, MAX=1.6, STEP=0.1, DEF=1;
+  function clamp(v){ return Math.min(MAX, Math.max(MIN, Math.round(v*10)/10)); }
+  var z=DEF;
+  try{ var s=parseFloat(localStorage.getItem(KEY)); if(!isNaN(s)) z=clamp(s); }catch(e){}
+  function apply(){
+    var content=document.getElementById('zoom-content');
+    if(content) content.style.zoom=z;
+    document.documentElement.style.zoom='';
+    try{ localStorage.setItem(KEY,String(z)); }catch(e){}
+    var pct=Math.round(z*100)+'%';
+    var out=document.getElementById('btn-zoom-out'), inb=document.getElementById('btn-zoom-in');
+    if(out){ out.disabled=(z<=MIN); out.title='Diminuir zoom · '+pct; }
+    if(inb){ inb.disabled=(z>=MAX); inb.title='Aumentar zoom · '+pct; }
+  }
+  window.zoomIn=function(){ z=clamp(z+STEP); apply(); };
+  window.zoomOut=function(){ z=clamp(z-STEP); apply(); };
+  apply();
 })();
 </script>
 </body>

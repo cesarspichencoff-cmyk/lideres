@@ -26,6 +26,8 @@ body { font-family:"DM Sans",sans-serif; background:var(--bg); color:var(--t1); 
 .header-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
 .header-plus { width:28px; height:28px; background:var(--carbon); border:none; border-radius:4px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
 .header-plus svg { width:14px; height:14px; stroke:var(--citric); fill:none; stroke-width:2.5; stroke-linecap:round; }
+#btn-pin.is-pinned svg { fill: var(--citric); }
+#btn-zoom-out:disabled,#btn-zoom-in:disabled{opacity:.32;cursor:default;}
 
 .mod-header { padding:16px 16px 0; }
 .mod-title { font-size:26px; font-weight:700; color:var(--t1); line-height:1.2; margin-bottom:8px; }
@@ -590,6 +592,12 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
     <button class="header-plus" id="btn-hard-refresh" onclick="hardRefresh()" title="Atualizar">
       <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
     </button>
+  <button class="header-plus" id="btn-zoom-out" onclick="zoomOut()" title="Diminuir zoom">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+  </button>
+  <button class="header-plus" id="btn-zoom-in" onclick="zoomIn()" title="Aumentar zoom">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/></svg>
+  </button>
   <button class="header-plus" id="btn-pin" onclick="pinNoApp()" title="Fixar no menu do app" style="display:none">
     <svg viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
   </button>
@@ -599,6 +607,7 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
   </div>
 </div>
 
+<div id="zoom-content">
 <div class="tabs">
   <button class="tab-btn active" id="tab-sobre" data-aba-id="governanca-kpis-rh-folha::sobre" onclick="setTab('sobre')">Sobre</button>
   <button class="tab-btn" id="tab-dashboard" data-aba-id="governanca-kpis-rh-folha::dashboard" onclick="setTab('dashboard')">Dashboard</button>
@@ -1779,6 +1788,7 @@ function setTab(t){
   window.scrollTo(0,0);
 }
 </script>
+</div><!-- /zoom-content -->
 <footer class="footer">
   <span class="footer-module">TATÁ SUSHI &nbsp;|&nbsp; TATÁ POKE &nbsp;|&nbsp; 2016 – 2026</span>
   <span class="footer-date" id="footer-date"></span>
@@ -1824,6 +1834,28 @@ function hardRefresh(){function r(){location.replace(location.pathname+"?r="+Dat
   });
   window.pinNoApp = function () { enviar({ tp: 'gov-pin-toggle', page: PAGE }); };
   enviar({ tp: 'gov-pin-query', id: PAGE.id });
+})();
+</script>
+<script>
+/* ══ ZOOM ══ */
+(function(){
+  var KEY='lideres-zoom', MIN=0.7, MAX=1.6, STEP=0.1, DEF=1;
+  function clamp(v){ return Math.min(MAX, Math.max(MIN, Math.round(v*10)/10)); }
+  var z=DEF;
+  try{ var s=parseFloat(localStorage.getItem(KEY)); if(!isNaN(s)) z=clamp(s); }catch(e){}
+  function apply(){
+    var content=document.getElementById('zoom-content');
+    if(content) content.style.zoom=z;
+    document.documentElement.style.zoom='';
+    try{ localStorage.setItem(KEY,String(z)); }catch(e){}
+    var pct=Math.round(z*100)+'%';
+    var out=document.getElementById('btn-zoom-out'), inb=document.getElementById('btn-zoom-in');
+    if(out){ out.disabled=(z<=MIN); out.title='Diminuir zoom · '+pct; }
+    if(inb){ inb.disabled=(z>=MAX); inb.title='Aumentar zoom · '+pct; }
+  }
+  window.zoomIn=function(){ z=clamp(z+STEP); apply(); };
+  window.zoomOut=function(){ z=clamp(z-STEP); apply(); };
+  apply();
 })();
 </script>
 </body>
