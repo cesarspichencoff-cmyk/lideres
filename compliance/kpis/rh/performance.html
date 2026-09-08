@@ -1028,6 +1028,15 @@ window.perfSupa = window.perfSupa || function(cb) {
       var rows=(r&&!r.error&&Array.isArray(r.data))?r.data:[];
       var modelos=rows.filter(function(t){return t.tipo==='modelo';});
       setList('av-tipos-list', modelos.map(function(t){ return barRow(curto(t.tema), t.media, t.n, t.tema); }).join(''));
+      // Linha "Score RH" (score de líderes — indicadores DP/RH, último mês)
+      supa.schema('tata_plus').rpc('score_rh_media', args).then(function(rs){
+        var row=(rs&&!rs.error&&rs.data&&rs.data[0])?rs.data[0]:null;
+        var el=document.getElementById('av-tipos-list'); if(!el) return;
+        var ph=el.querySelector('.chart-sub'); if(ph) ph.remove();
+        var old=el.querySelector('[data-scorerh]'); if(old) old.remove();
+        var html=barRow('Score RH', row?row.media:null, row?row.n:0, 'Score RH — indicadores DP/RH (último mês)');
+        el.insertAdjacentHTML('beforeend', html.replace('class="bar-row"', 'class="bar-row" data-scorerh="1"'));
+      }, function(){});
     }, function(){});
 
     // AVALIAÇÃO POR TEMA: 9 categorias (todas as avaliações) + Recomendação (indicador à parte)
