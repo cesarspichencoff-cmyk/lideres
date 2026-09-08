@@ -179,6 +179,12 @@
   .bar-fill { height: 100%; background: var(--carbon); border-radius: 4px; transition: width 0.4s ease; }
   .bar-val { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; color: var(--t1); }
   #av-temas-list .bar-row { grid-template-columns: 190px 1fr 32px; }
+  /* Barras verticais (Performance por Unidade) */
+  .perf-vbars { display: flex; gap: 10px; align-items: flex-end; justify-content: space-around; min-height: 150px; padding: 10px 4px 0; }
+  .perf-vbar-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; flex: 1 1 0; min-width: 0; max-width: 130px; }
+  .perf-vbar-val { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; color: var(--carbon); margin-bottom: 3px; }
+  .perf-vbar-track { width: 60%; max-width: 54px; min-width: 22px; background: var(--carbon); border-radius: 3px 3px 0 0; transition: height .4s ease; }
+  .perf-vbar-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--carbon); margin-top: 6px; text-align: center; line-height: 1.15; word-break: break-word; }
   .chart-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .chart-scroll svg { min-width: 900px; }
 
@@ -602,11 +608,6 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
 <div id="view-geral" class="dash-view active">
 
 <!-- KPIs TOPO: Avaliação Geral + Colaboradores + CMO (faixa full-width, padrão recrutamento) -->
-<svg width="0" height="0"><defs>
-  <linearGradient id="half-grad" x1="0" x2="1" y1="0" y2="0">
-    <stop offset="50%" stop-color="#CFFF00"/><stop offset="50%" stop-color="#E2E2E2"/>
-  </linearGradient>
-</defs></svg>
 <div class="kpis-wrap">
   <div class="kpi-card">
     <span class="kpi-label">Avaliação Geral</span>
@@ -1917,10 +1918,23 @@ window._notaColab = window._notaColab || {};
     el.innerHTML = (rows&&rows.length) ? rows.map(barRow).join('')
                                        : '<div class="chart-sub" style="margin:0;">Sem dados</div>';
   }
+  function fillVert(id, rows){
+    var el=document.getElementById(id); if(!el) return;
+    if(!rows||!rows.length){ el.innerHTML='<div class="chart-sub" style="margin:0;">Sem dados</div>'; return; }
+    var BAR_MAX=120;
+    el.innerHTML='<div class="perf-vbars">'+rows.map(function(r){
+      var m=parseFloat(r.media); var px=isNaN(m)?0:Math.round(BAR_MAX*Math.max(0.06,Math.min(1,m/5)));
+      var tip=esc(r.rotulo)+(r.aval!=null?(' · aval. '+fmt(r.aval)):'')+(r.rh!=null?(' · RH '+fmt(r.rh)):'')+(r.n?(' · '+r.n+' aval.'):'');
+      return '<div class="perf-vbar-wrap" title="'+tip+'">'+
+        '<span class="perf-vbar-val">'+fmt(r.media)+'</span>'+
+        '<div class="perf-vbar-track" style="height:'+px+'px;"></div>'+
+        '<span class="perf-vbar-label">'+esc(r.rotulo)+'</span></div>';
+    }).join('')+'</div>';
+  }
   function render(state){
     var supa=window.__lideresSupa; if(!supa) return;
     var base={ p_unidade:(state.unidade&&state.unidade!=='Todos')?state.unidade:'', p_departamento:(state.depto&&state.depto!=='Todos')?state.depto:'' };
-    supa.schema('tata_plus').rpc('performance_grupo', { p_por:'unidade', p_unidade:base.p_unidade, p_departamento:base.p_departamento }).then(function(r){ fill('lid-uni-list',(r&&!r.error&&r.data)||[]); }, function(){});
+    supa.schema('tata_plus').rpc('performance_grupo', { p_por:'unidade', p_unidade:base.p_unidade, p_departamento:base.p_departamento }).then(function(r){ fillVert('lid-uni-list',(r&&!r.error&&r.data)||[]); }, function(){});
     supa.schema('tata_plus').rpc('performance_grupo', { p_por:'departamento', p_unidade:base.p_unidade, p_departamento:base.p_departamento }).then(function(r){ fill('lid-dep-list',(r&&!r.error&&r.data)||[]); }, function(){});
   }
   window.registerPerfRenderer(render);
