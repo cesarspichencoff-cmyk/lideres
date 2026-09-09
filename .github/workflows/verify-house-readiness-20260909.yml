@@ -1,6 +1,6 @@
 name: Verify House Readiness 20260909
 
-# Reexecução controlada: prova idempotente do manifesto já materializado.
+# Prova final: o manifesto transferível já materializado deve gerar zero diff.
 on:
   push:
     branches:
