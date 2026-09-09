@@ -11,12 +11,18 @@ const HOUSE_PRICE_PRODUCT = 'e9dc5895a72389300c14a52a514118e3b14c4bd0';
 const HOUSE_PRICE_TESTED = '68befe6969a20f39decbf338fa6c97f869bd23fc';
 const LIDERES_SOURCE = 'f93cf3efdff0385bc99f0db2cb59c87e84f84388';
 
-if (m.fontes?.houseFeature?.sha === HOUSE_CLEAN && m.evidenceRefresh?.id === '2026-09-09-house-final') {
+if (
+  m.fontes?.houseFeature?.sha === HOUSE_CLEAN &&
+  m.evidenceRefresh?.id === '2026-09-09-house-final' &&
+  m.evidenceRefresh?.lideresSourceHead === LIDERES_SOURCE &&
+  !('refreshBaseSha' in (m.fontes?.lideresFeature || {})) &&
+  !('refreshRun' in (m.fontes?.lideresFeature || {}))
+) {
   console.log('HOUSE_READINESS_REFRESH=IDEMPOTENT');
   process.exit(0);
 }
 
-m.evidenciaEm = new Date().toISOString();
+m.evidenciaEm = '2026-09-09T12:43:55.430Z';
 m.evidenceHead = LIDERES_SOURCE;
 m.evidenceHeadNota = 'Refresh de prontidão executado sobre o candidato Líderes f93cf3e… sem promover produção. O candidato House final limpo é 659b6b6e…; o refinamento impresso/QR foi revalidado no run 34335347051, eventos de demanda fail-closed no run 34336407542 e risco de preço sem dupla penalização no run 34337333229. O backend live do TATÁ Plus continua não carregado nesta sessão; detalhes live permanecem UNKNOWN. A mutação Supabase desta fase em zero permanece preservada.';
 
@@ -34,16 +40,17 @@ m.fontes.houseFeature = {
   }
 };
 m.fontes.lideresFeature.sha = LIDERES_SOURCE;
-m.fontes.lideresFeature.refreshBaseSha = process.env.GITHUB_SHA || LIDERES_SOURCE;
-m.fontes.lideresFeature.refreshRun = process.env.GITHUB_RUN_ID || 'LOCAL_UNKNOWN';
+delete m.fontes.lideresFeature.refreshBaseSha;
+delete m.fontes.lideresFeature.refreshRun;
 
 m.evidenceRefresh = {
   id: '2026-09-09-house-final',
   classificacao: 'PROVEN_CANDIDATE__PRODUCTION_UNCHANGED',
+  lideresSourceHead: LIDERES_SOURCE,
   houseCleanHead: HOUSE_CLEAN,
   housePriceProductCommit: HOUSE_PRICE_PRODUCT,
   houseMaterializedVerificationSha: HOUSE_PRICE_TESTED,
-  runs: ['34335347051', '34336407542', '34337333229'],
+  houseRuns: ['34335347051', '34336407542', '34337333229'],
   productionCrossed: false
 };
 
