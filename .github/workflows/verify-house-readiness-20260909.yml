@@ -1,0 +1,59 @@
+name: Verify House Readiness 20260909
+
+on:
+  push:
+    branches:
+      - verify/house-readiness-20260909
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify-readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+      - name: Refresh manifest idempotently
+        run: node .github/scripts/refresh-house-readiness-20260909.cjs
+      - name: Diff safety
+        run: |
+          git diff --check
+          changed=$(git diff --name-only | sort)
+          if [ -n "$changed" ]; then
+            test "$changed" = "compliance/kpis/tatahouse/house_governanca_readiness_v1.json" || { echo "$changed"; exit 1; }
+          fi
+          echo "READINESS_REFRESH_SCOPE=PASS"
+      - name: Parse JSON
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('compliance/kpis/tatahouse/house_governanca_readiness_v1.json','utf8')); console.log('READINESS_JSON=PASS')"
+      - name: Check Tatahouse JS syntax
+        run: |
+          find compliance/kpis/tatahouse -maxdepth 1 \( -name '*.js' -o -name '*.cjs' \) -print0 | xargs -0 -n1 node --check
+          echo "TATAHOUSE_JS_SYNTAX=PASS"
+      - name: Run Tatahouse Node tests
+        run: |
+          set -euo pipefail
+          count=0
+          for t in compliance/kpis/tatahouse/*.test.cjs; do
+            echo "==> $t"
+            node "$t"
+            count=$((count+1))
+          done
+          echo "TATAHOUSE_TEST_FILES=$count"
+      - name: Commit refreshed manifest when needed
+        run: |
+          if git diff --quiet; then
+            echo "READINESS_MATERIALIZED_IDEMPOTENT=PASS"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add compliance/kpis/tatahouse/house_governanca_readiness_v1.json
+          git commit -m "chore(tatahouse): atualizar evidência final do candidato House"
+          git push
