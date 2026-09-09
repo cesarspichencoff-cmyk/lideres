@@ -44,9 +44,7 @@
       "branch": "feat/tatahouse-governanca-house-cloud-v1",
       "sha": "f93cf3efdff0385bc99f0db2cb59c87e84f84388",
       "testedSha": "9f7dec703a291d3aa068a1960300fe7cd8e02cfa",
-      "testRun": "34325067044",
-      "refreshBaseSha": "91e4758125bf073f95093ba1648a1b1aeda1cddf",
-      "refreshRun": "34352713646"
+      "testRun": "34325067044"
     }
   },
   "statusPermitidos": [
@@ -286,10 +284,11 @@
   "evidenceRefresh": {
     "id": "2026-09-09-house-final",
     "classificacao": "PROVEN_CANDIDATE__PRODUCTION_UNCHANGED",
+    "lideresSourceHead": "f93cf3efdff0385bc99f0db2cb59c87e84f84388",
     "houseCleanHead": "659b6b6ea66a5a531ea3460059c989109c69d002",
     "housePriceProductCommit": "e9dc5895a72389300c14a52a514118e3b14c4bd0",
     "houseMaterializedVerificationSha": "68befe6969a20f39decbf338fa6c97f869bd23fc",
-    "runs": [
+    "houseRuns": [
       "34335347051",
       "34336407542",
       "34337333229"
