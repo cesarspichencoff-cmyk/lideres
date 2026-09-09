@@ -1,0 +1,106 @@
+name: Build TATA House Business Clean Temp
+
+on:
+  push:
+    branches:
+      - verify/tatahouse-business-clean-exec-20260909
+
+permissions:
+  contents: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: candidate/tatahouse-business-clean-v1
+          fetch-depth: 0
+      - name: Clean production slice
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=1a436f058a951493fd609785ad0b9b990557ac24
+          SOURCE=14abbeb23dc0df168b24080c8c36d5523bee147a
+          test "$(git rev-parse HEAD)" = "$SOURCE"
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('compliance/kpis/tatahouse/central.html')
+          s=p.read_text()
+          for line in [
+            '<script src="/compliance/kpis/tatahouse/house_governanca_avaliacoes_ingest_v1.js"></script>\n',
+            '<script src="/compliance/kpis/tatahouse/house_governanca_avaliacoes_local_v1.js"></script>\n',
+            '    <a class="secondary" href="prontidao.html" data-readiness-entry="v1">Prontidão</a>\n',
+          ]:
+            s=s.replace(line,'')
+          start="  window.addEventListener('tatahouse:governanca:avaliacoes-recebidas',function(evento){\n"
+          if start in s:
+            a=s.index(start)
+            b=s.index("  });\n",a)+len("  });\n")
+            s=s[:a]+s[b:]
+          p.write_text(s)
+          PY
+
+          # Prova funcional dos módulos que permanecem no produto.
+          node compliance/kpis/tatahouse/house_governanca_estoque_v1.test.cjs
+          node compliance/kpis/tatahouse/house_governanca_readonly_v1.test.cjs
+          node compliance/kpis/tatahouse/house_governanca_restricoes_v1.test.cjs
+          for f in \
+            compliance/kpis/tatahouse/house_governanca_elaboracao_v1.js \
+            compliance/kpis/tatahouse/house_governanca_estoque_v1.js \
+            compliance/kpis/tatahouse/house_governanca_local_bridge_v1.js \
+            compliance/kpis/tatahouse/house_governanca_planejador_v1.js \
+            compliance/kpis/tatahouse/house_governanca_readonly_v1.js \
+            compliance/kpis/tatahouse/house_governanca_restricoes_v1.js; do node --check "$f"; done
+
+          cat > /tmp/keep <<'EOF'
+          compliance/kpis/tatahouse/cardapio.html
+          compliance/kpis/tatahouse/central.html
+          compliance/kpis/tatahouse/house_governanca_elaboracao_v1.js
+          compliance/kpis/tatahouse/house_governanca_estoque_v1.js
+          compliance/kpis/tatahouse/house_governanca_local_bridge_v1.js
+          compliance/kpis/tatahouse/house_governanca_planejador_v1.js
+          compliance/kpis/tatahouse/house_governanca_readonly_v1.js
+          compliance/kpis/tatahouse/house_governanca_restricoes_v1.js
+          compliance/kpis/tatahouse/index.html
+          compliance/kpis/tatahouse/planejador-v2.html
+          EOF
+          sed -i 's/^          //' /tmp/keep
+          git diff --name-only "$BASE" HEAD > /tmp/changed
+          while read -r f; do
+            grep -Fxq "$f" /tmp/keep || git rm -f -- "$f"
+          done < /tmp/changed
+
+          # Nada operacional pode apontar para os artefatos removidos.
+          ! grep -RInE --include='*.html' --include='*.js' 'house_governanca_(avaliacoes_(ingest|local)|readiness|clean_candidate|promotion_map|house_slice_manifest|live_access|live_readonly_preflight|legacy_evaluation|house_cloud_(live_evidence|transition)|design_contract)' compliance/kpis/tatahouse
+          ! grep -RIn 'tata.house.avaliacoes.recebidas.v1' compliance/kpis/tatahouse
+
+          # Fonte oficial de estoque continua só leitura.
+          f=compliance/kpis/tatahouse/house_governanca_estoque_v1.js
+          grep -q "from('inventario_minimo')" "$f"
+          grep -q "from('inventario_contagem')" "$f"
+          ! grep -E '\.(insert|update|delete|upsert)\(' "$f"
+
+          # O SQL oficial já existente permanece byte a byte.
+          test "$(git rev-parse "$BASE":compliance/kpis/tatahouse/refeicoes_relatorio_detalhado.sql)" = "$(git hash-object compliance/kpis/tatahouse/refeicoes_relatorio_detalhado.sql)"
+
+          git diff --check "$BASE"
+          git diff --name-only "$BASE" | sort > /tmp/final
+          sort /tmp/keep > /tmp/expected
+          diff -u /tmp/expected /tmp/final
+          echo 'BUSINESS_FILES=10'
+          echo 'PROOF_FILES_SHIPPED=0'
+          echo 'LEGACY_LOCAL_EVALUATION_RECEIVER=REMOVED'
+          echo 'EXISTING_MEALS_SQL=PRESERVED'
+          echo 'STOCK_SOURCE=OFFICIAL_READ_ONLY'
+          echo 'CLEAN_STRUCTURE=PASS'
+
+      - name: Commit clean candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'refactor(tatahouse): deixar slice operacional limpo e mínimo'
+          git push origin HEAD:candidate/tatahouse-business-clean-v1
