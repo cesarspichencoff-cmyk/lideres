@@ -1,0 +1,65 @@
+name: Verify TATA House Stock Readonly Temp
+
+on:
+  push:
+    branches:
+      - verify/tatahouse-stock-readonly-20260909
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: verify/tatahouse-stock-readonly-20260909
+          fetch-depth: 0
+      - name: Anchor PR base candidate
+        run: git merge-base --is-ancestor d4aaa9916f37607086565e4c43d19a539a6ae376 HEAD
+      - name: Patch planner
+        run: python tools/tatahouse_stock_planner_temp.py
+      - name: Diff check
+        run: git diff --check
+      - name: JS syntax
+        shell: bash
+        run: |
+          find compliance/kpis/tatahouse -maxdepth 1 -name '*.js' -print0 | sort -z | xargs -0 -n1 node --check
+      - name: Node tests
+        shell: bash
+        run: |
+          count=0
+          for f in $(find compliance/kpis/tatahouse -maxdepth 1 -name '*.test.cjs' | sort); do
+            node "$f"
+            count=$((count+1))
+          done
+          echo "TATAHOUSE_TEST_SUITES=$count"
+          test "$count" -ge 15
+      - name: Read-only and scope gates
+        shell: bash
+        run: |
+          test -f compliance/kpis/tatahouse/house_governanca_estoque_v1.js
+          test -f compliance/kpis/tatahouse/house_governanca_estoque_v1.test.cjs
+          grep -q 'house_governanca_estoque_v1.js' compliance/kpis/tatahouse/planejador-v2.html
+          grep -q 'TataHouseGovernancaEstoqueV1' compliance/kpis/tatahouse/planejador-v2.html
+          ! grep -E '\.(insert|update|delete|upsert)\(' compliance/kpis/tatahouse/house_governanca_estoque_v1.js
+          git add -N compliance/kpis/tatahouse/planejador-v2.html
+          git diff --name-only d4aaa9916f37607086565e4c43d19a539a6ae376...HEAD > /tmp/committed
+          git diff --name-only >> /tmp/working
+          cat /tmp/committed /tmp/working | sort -u | grep -v '^\.github/' | grep -v '^tools/' > /tmp/product
+          cat /tmp/product
+          test "$(wc -l < /tmp/product | tr -d ' ')" = "3"
+          ! grep -v '^compliance/kpis/tatahouse/' /tmp/product
+          grep -qx 'compliance/kpis/tatahouse/house_governanca_estoque_v1.js' /tmp/product
+          grep -qx 'compliance/kpis/tatahouse/house_governanca_estoque_v1.test.cjs' /tmp/product
+          grep -qx 'compliance/kpis/tatahouse/planejador-v2.html' /tmp/product
+          echo 'TATAHOUSE_STOCK_READONLY_SCOPE=PASS'
+      - name: Materialize planner on verify branch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add compliance/kpis/tatahouse/planejador-v2.html
+          git commit -m "feat(tatahouse): conectar estoque oficial read-only ao planejador"
+          git push origin HEAD:verify/tatahouse-stock-readonly-20260909
