@@ -1,0 +1,99 @@
+name: Verify TATA House Business Clean Final Temp
+
+on:
+  push:
+    branches:
+      - verify/tatahouse-business-clean-final-20260909
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 53472a9d458280498e7cf295f29c016a1705a3c3
+          fetch-depth: 0
+      - name: Final organization and business integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=1a436f058a951493fd609785ad0b9b990557ac24
+          SOURCE=14abbeb23dc0df168b24080c8c36d5523bee147a
+          FINAL=53472a9d458280498e7cf295f29c016a1705a3c3
+          test "$(git rev-parse HEAD)" = "$FINAL"
+          test "$(git merge-base "$BASE" HEAD)" = "$BASE"
+          git diff --check "$BASE" HEAD
+          git diff --name-only "$BASE" HEAD | sort > /tmp/files
+          test "$(wc -l < /tmp/files | tr -d ' ')" = "10"
+          test "$(grep -vc '^compliance/kpis/tatahouse/' /tmp/files || true)" = "0"
+          ! grep -q '^supabase/' /tmp/files
+          ! grep -q '^compliance/kpis/rh/' /tmp/files
+          ! grep -q '^compliance/kpis/estoque/' /tmp/files
+          ! grep -q '^compliance/kpis/compras/' /tmp/files
+
+          # Nenhum artefato de prova/teste/receipt é publicado no slice operacional.
+          ! find compliance/kpis/tatahouse -maxdepth 1 -type f \( -name '*.test.cjs' -o -name '*evidence*' -o -name '*manifest*' -o -name '*recipe*' -o -name '*preflight*' -o -name '*probe*' -o -name '*promotion_map*' -o -name '*readiness*' \) -print | grep .
+          ! grep -RIn 'tata.house.avaliacoes.recebidas.v1' compliance/kpis/tatahouse
+          ! grep -RInE --include='*.html' 'house_governanca_avaliacoes_(ingest|local)_v1\.js|prontidao\.html|integracao-local\.html' compliance/kpis/tatahouse
+
+          # Scripts locais declarados pelos HTMLs precisam existir.
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          root=Path('compliance/kpis/tatahouse')
+          missing=[]
+          for html in root.glob('*.html'):
+              s=html.read_text()
+              for src in re.findall(r'<script[^>]+src=["\']([^"\']+)["\']',s):
+                  pref='/compliance/kpis/tatahouse/'
+                  if src.startswith(pref):
+                      p=root/src[len(pref):]
+                      if not p.exists(): missing.append((html.name,src))
+          if missing:
+              raise SystemExit('MISSING_LOCAL_SCRIPT='+repr(missing))
+          print('LOCAL_SCRIPT_REFERENCES=PASS')
+          PY
+
+          # O módulo de estoque lê exclusivamente as tabelas oficiais do Líderes.
+          EST=compliance/kpis/tatahouse/house_governanca_estoque_v1.js
+          grep -q "from('inventario_minimo')" "$EST"
+          grep -q "from('inventario_contagem')" "$EST"
+          ! grep -E '\.(insert|update|delete|upsert)\(' "$EST"
+
+          # Histórico operacional reaproveita o contrato oficial existente e só lê.
+          RO=compliance/kpis/tatahouse/house_governanca_readonly_v1.js
+          grep -q "schema('tata_plus')" "$RO"
+          grep -q "refeicoes_relatorio_detalhado" "$RO"
+          ! grep -E '\.(insert|update|delete|upsert)\(' "$RO"
+
+          # O SQL operacional que já existia no Líderes não foi alterado.
+          test "$(git rev-parse "$BASE":compliance/kpis/tatahouse/refeicoes_relatorio_detalhado.sql)" = "$(git rev-parse HEAD:compliance/kpis/tatahouse/refeicoes_relatorio_detalhado.sql)"
+
+          # Central continua protegida pelo gate oficial do Líderes.
+          grep -q 'data-auth="pending"' compliance/kpis/tatahouse/central.html
+          grep -q '/compliance/gate.js' compliance/kpis/tatahouse/central.html
+
+          # Sem segredo óbvio novo no slice.
+          ! grep -RInE --include='*.js' --include='*.html' '(service_role|SUPABASE_SERVICE|BEGIN PRIVATE KEY|ghp_[A-Za-z0-9]+|sk-[A-Za-z0-9]{20,})' compliance/kpis/tatahouse
+
+          # Reexecuta as três suítes diretamente ligadas aos módulos operacionais mantidos.
+          for t in house_governanca_estoque_v1.test.cjs house_governanca_readonly_v1.test.cjs house_governanca_restricoes_v1.test.cjs; do
+            git show "$SOURCE":compliance/kpis/tatahouse/$t > compliance/kpis/tatahouse/$t
+            node compliance/kpis/tatahouse/$t
+            rm compliance/kpis/tatahouse/$t
+          done
+          for f in compliance/kpis/tatahouse/house_governanca_*.js; do node --check "$f"; done
+          test -z "$(git status --porcelain)"
+
+          echo 'STRUCTURE=PASS'
+          echo 'BUSINESS_SCOPE=10_FILES'
+          echo 'PROOF_CLUTTER=0'
+          echo 'OFFICIAL_STOCK_SOURCE=PASS'
+          echo 'OFFICIAL_MEALS_SOURCE=PASS'
+          echo 'LEGACY_LOCAL_EVALUATION_STORE=ABSENT'
+          echo 'AUTH_GATE=PRESERVED'
+          echo 'SECRETS_SCAN=PASS'
+          echo 'FINAL_CLEAN_CANDIDATE=53472a9d458280498e7cf295f29c016a1705a3c3'
