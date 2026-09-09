@@ -1,0 +1,85 @@
+{
+  "contrato": "tata-house-governanca-design",
+  "versao": 1,
+  "objetivo": "Padronizar TATÁ House, TATÁ Plus e Governança como uma família de produto sem apagar a identidade gastronômica premium do House.",
+  "principio": "UMA_MARCA_DUAS_VOZES_COMPLEMENTARES",
+  "fontesDeVerdade": {
+    "house": {
+      "repo": "tata-house/tata-house.github.io",
+      "branch": "tata-house",
+      "sha": "7f77fc88a12b11d40a185230f50d34172528082e",
+      "arquivos": ["src/app/layout.tsx", "tailwind.config.ts", "src/components/cardapio/PlaquinhaQR.tsx", "src/components/cardapio/PosterSemana.tsx"]
+    },
+    "lideres": {
+      "repo": "tata-sushi/lideres",
+      "branch": "main",
+      "sha": "42b795f879f11dd2cd290eec8b26993f7da5e9c9",
+      "arquivo": "compliance/kpis/tatahouse/cardapio.html"
+    },
+    "plus": {
+      "repo": "tata-sushi/plus",
+      "branch": "main",
+      "sha": "3ffb714adccfc81531b5f94af08dc1b3d4653788",
+      "arquivo": "src/index.css"
+    }
+  },
+  "tipografia": {
+    "produtoHouse": {
+      "sans": "Manrope",
+      "display": "Fraunces",
+      "uso": "conteúdo gastronômico, títulos de cardápio, storytelling, materiais impressos e superfícies premium"
+    },
+    "operacionalGovernanca": {
+      "sans": "DM Sans",
+      "mono": "DM Mono",
+      "uso": "metadados, status, datas, ids, tabelas, filtros, controles e superfícies administrativas"
+    },
+    "regra": "Não substituir globalmente Fraunces/Manrope por DM Sans/Mono nem o inverso. A padronização ocorre por papel semântico da informação."
+  },
+  "cores": {
+    "operacional": {
+      "carbon": "#35383F",
+      "citric": "#CFFF00",
+      "surface": "#FFFFFF",
+      "border": "#E2E2E2"
+    },
+    "house": {
+      "preservar": ["brand green", "areia", "carvao", "ouro"],
+      "regra": "Materiais de refeição e impressão mantêm a paleta premium House; cítrico/carvão entram como linguagem de governança e sinalização operacional."
+    }
+  },
+  "componentesCompartilhados": {
+    "status": "compacto, semântico, alto contraste; linguagem operacional Líderes",
+    "datasEMetadados": "DM Mono quando renderizados pelo shell Líderes; sem forçar fonte externa dentro do documento House",
+    "alertas": "usar semântica consistente de verde/âmbar/vermelho e texto explícito",
+    "cards": "hierarquia clara, borda discreta, respiro preservado; não converter House em dashboard denso"
+  },
+  "impresso": {
+    "owner": "TATÁ House",
+    "preservar": [
+      "PlaquinhaQR com QR gerado localmente",
+      "PosterSemana A4",
+      "Fraunces nos títulos editoriais",
+      "verde/areia/ouro",
+      "ação de impressão",
+      "link de avaliação unificado com TATÁ Plus"
+    ],
+    "proibido": [
+      "substituir o impresso por tabela administrativa do Líderes",
+      "remover QR para simplificar integração",
+      "trocar o QR por sistema de votação paralelo"
+    ]
+  },
+  "arquiteturaVisual": {
+    "house": "premium_gastronomico_expressivo",
+    "plus": "colaborador_mobile_acessivel",
+    "lideres": "operacional_denso_preciso",
+    "resultado": "mesma marca por tokens, semântica e ritmo; vozes distintas conforme tarefa"
+  },
+  "classificacao": {
+    "fontes": "PROVEN_VERSIONED",
+    "direcaoDeDesign": "INFERENCE_AUTHORED_FROM_PROVEN_SOURCES",
+    "mudancaGlobalDeFonte": "NOT_PROPOSED",
+    "preservacaoImpressao": "REQUIRED"
+  }
+}
