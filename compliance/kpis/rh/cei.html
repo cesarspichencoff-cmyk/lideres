@@ -951,10 +951,63 @@ html[data-auth="denied"]  #auth-gate .gate-loading { display:none; }
 </div><!-- /view-sobre -->
 
 <div id="view-dashboard" class="dash-view">
-  <div class="dash-ph">
-    <div class="dash-ph-badge">Em construção</div>
-    <div class="dash-ph-title">Dashboard em construção</div>
-    <div class="dash-ph-sub">Os indicadores e ferramentas de Cultura & Clima estarão disponíveis aqui em breve.</div>
+  <style>
+    .cl-wrap{max-width:860px;margin:0 auto;padding:22px 16px 44px;}
+    .cl-head{font-family:"DM Mono",monospace;font-size:9px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);margin-bottom:14px;}
+    .cl-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+    @media(max-width:640px){.cl-kpis{grid-template-columns:1fr;}}
+    .cl-kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;}
+    .cl-kpi-label{font-family:"DM Mono",monospace;font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);}
+    .cl-kpi-val{font-size:34px;font-weight:700;color:var(--carbon);line-height:1.05;margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:-1px;}
+    .cl-kpi-sub{font-family:"DM Mono",monospace;font-size:11px;color:var(--t2);margin-top:3px;text-transform:capitalize;}
+    .cl-section{margin-top:28px;}
+    .cl-section-title{font-family:"DM Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--carbon);margin-bottom:14px;}
+    .cl-section-title span{color:var(--t3);font-weight:500;text-transform:none;letter-spacing:0;font-size:11px;}
+    .cl-bars{display:flex;flex-direction:column;gap:9px;}
+    .cl-bar-row{display:grid;grid-template-columns:200px 1fr 46px;align-items:center;gap:12px;}
+    @media(max-width:640px){.cl-bar-row{grid-template-columns:118px 1fr 40px;gap:8px;}}
+    .cl-bar-label{font-size:13px;color:var(--t1);line-height:1.25;}
+    .cl-bar-label small{display:block;font-family:"DM Mono",monospace;font-size:9px;color:var(--t3);letter-spacing:.03em;margin-top:1px;}
+    .cl-bar-track{background:#ECECEC;border-radius:5px;height:20px;overflow:hidden;}
+    .cl-bar-fill{height:100%;border-radius:5px;min-width:2px;transition:width .45s ease;}
+    .cl-bar-val{font-family:"DM Mono",monospace;font-size:13px;font-weight:600;color:var(--carbon);text-align:right;font-variant-numeric:tabular-nums;}
+    .cl-bar-val.empty{color:var(--t3);font-weight:500;}
+    .cl-coments{display:flex;flex-direction:column;gap:8px;}
+    .cl-coment{background:var(--white);border:1px solid var(--border);border-left:3px solid var(--citric);border-radius:6px;padding:10px 14px;font-size:13px;color:var(--t1);line-height:1.42;}
+    .cl-coment small{display:block;font-family:"DM Mono",monospace;font-size:9px;color:var(--t3);margin-top:5px;letter-spacing:.03em;}
+    .cl-legenda{display:flex;flex-wrap:wrap;gap:14px;margin-top:24px;padding-top:14px;border-top:1px solid var(--border);}
+    .cl-leg{display:flex;align-items:center;gap:6px;font-family:"DM Mono",monospace;font-size:10px;color:var(--t2);}
+    .cl-leg i{width:11px;height:11px;border-radius:3px;display:inline-block;}
+    .cl-state{text-align:center;padding:56px 20px;color:var(--t3);font-size:13px;line-height:1.5;}
+    .cl-state b{display:block;color:var(--carbon);font-size:16px;margin-bottom:6px;}
+  </style>
+  <div class="cl-wrap">
+    <div class="cl-head">Pesquisa de Clima · indicadores</div>
+    <div id="cl-loading" class="cl-state">Carregando…</div>
+    <div id="cl-empty" class="cl-state" hidden>
+      <b>Aguardando respostas</b>
+      Assim que a Pesquisa de Clima começar a ser respondida, os indicadores aparecem aqui.
+    </div>
+    <div id="cl-content" hidden>
+      <div class="cl-kpis">
+        <div class="cl-kpi"><div class="cl-kpi-label">Média geral</div><div class="cl-kpi-val" id="cl-media">—</div><div class="cl-kpi-sub" id="cl-media-faixa"></div></div>
+        <div class="cl-kpi"><div class="cl-kpi-label">Índice de Recomendação</div><div class="cl-kpi-val" id="cl-irec">—</div><div class="cl-kpi-sub" id="cl-irec-faixa">média 1–5</div></div>
+        <div class="cl-kpi"><div class="cl-kpi-label">Respostas</div><div class="cl-kpi-val" id="cl-n">—</div><div class="cl-kpi-sub">na janela</div></div>
+      </div>
+      <div class="cl-section">
+        <div class="cl-section-title">Temas <span>· média por tema (1–5)</span></div>
+        <div class="cl-bars" id="cl-temas"></div>
+      </div>
+      <div class="cl-section">
+        <div class="cl-section-title">Perguntas <span>· detalhe por item</span></div>
+        <div class="cl-bars" id="cl-perguntas"></div>
+      </div>
+      <div class="cl-section">
+        <div class="cl-section-title">Comentários <span>· o que ajudaria a melhorar</span></div>
+        <div class="cl-coments" id="cl-coments"></div>
+      </div>
+      <div class="cl-legenda" id="cl-legenda"></div>
+    </div>
   </div>
 </div>
 
@@ -1342,11 +1395,112 @@ function toggleFta(id) { document.getElementById(id).classList.toggle('open'); }
   <span>Carregando dados...</span>
 </div>
 <script>
+/* ── Dashboard da Pesquisa de Clima (lê tata_plus.av_clima_resumo/av_clima_comentarios) ── */
+(function(){
+  var FAIXAS=[
+    {min:4.5,label:'destaque',cor:'#1A5C2A'},
+    {min:4.0,label:'saudável',cor:'#5AA469'},
+    {min:3.5,label:'observação',cor:'#C9A227'},
+    {min:3.0,label:'atenção',cor:'#E08A3C'},
+    {min:0,  label:'crítico', cor:'#C0392B'}
+  ];
+  function faixa(m){ for(var i=0;i<FAIXAS.length;i++){ if(m>=FAIXAS[i].min) return FAIXAS[i]; } return FAIXAS[FAIXAS.length-1]; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function isRec(r){ return r.recomendacao===true || /Recomenda/.test(r.dimensao||''); }
+
+  var TEMA={
+    'Liderança':'Liderança & Comunicação','Apoio':'Liderança & Comunicação','Apoio da liderança':'Liderança & Comunicação','Comunicação':'Liderança & Comunicação','Feedback':'Liderança & Comunicação','Clareza':'Liderança & Comunicação','Informações do Trabalho':'Liderança & Comunicação',
+    'Reconhecimento':'Reconhecimento',
+    'Desenvolvimento':'Desenvolvimento','Aprendizagem':'Desenvolvimento','Treinamento':'Desenvolvimento',
+    'Relacionamento':'Relacionamento & Equipe','Equipe':'Relacionamento & Equipe','Trabalho em Equipe':'Relacionamento & Equipe','Apoio da equipe':'Relacionamento & Equipe','Clima':'Relacionamento & Equipe',
+    'Respeito':'Respeito & Bem-estar','Justiça':'Respeito & Bem-estar','Segurança Psicológica':'Respeito & Bem-estar','Voz':'Respeito & Bem-estar','Conflitos':'Respeito & Bem-estar','Carga':'Respeito & Bem-estar','Pressão':'Respeito & Bem-estar','Equilíbrio':'Respeito & Bem-estar','Bem-estar':'Respeito & Bem-estar',
+    'Cultura':'Cultura & Valores','Valores':'Cultura & Valores','Cultura & Conduta':'Cultura & Valores','Ética':'Cultura & Valores','Comportamental':'Cultura & Valores',
+    'Ambiente':'Estrutura & Recursos','Recursos':'Estrutura & Recursos','Recursos e Orientações':'Estrutura & Recursos','Estrutura':'Estrutura & Recursos','Processos':'Estrutura & Recursos','Canais':'Estrutura & Recursos','Canais e Processos':'Estrutura & Recursos'
+  };
+  var TEMA_ORDER=['Liderança & Comunicação','Reconhecimento','Desenvolvimento','Relacionamento & Equipe','Respeito & Bem-estar','Cultura & Valores','Estrutura & Recursos'];
+
+  function bar(label, sub, media){
+    var has = media!=null;
+    var pct = has ? Math.max(2, Math.round(media/5*100)) : 0;
+    var f = has ? faixa(media) : null;
+    return '<div class="cl-bar-row">'+
+      '<div class="cl-bar-label">'+esc(label)+(sub?'<small>'+esc(sub)+'</small>':'')+'</div>'+
+      '<div class="cl-bar-track">'+(has?'<div class="cl-bar-fill" style="width:'+pct+'%;background:'+f.cor+'"></div>':'')+'</div>'+
+      '<div class="cl-bar-val'+(has?'':' empty')+'">'+(has?media.toFixed(2):'—')+'</div>'+
+    '</div>';
+  }
+  function el(id){ return document.getElementById(id); }
+
+  function render(rows, coments){
+    var withData = rows.filter(function(r){ return r.n>0 && r.media!=null; });
+    el('cl-loading').hidden=true;
+    if (!withData.length){ el('cl-content').hidden=true; el('cl-empty').hidden=false; return; }
+
+    var sw=0, swn=0, maxn=0, irec=null;
+    rows.forEach(function(r){
+      if (r.n>0 && r.media!=null && !isRec(r)){ sw+=(+r.media)*(+r.n); swn+=(+r.n); }
+      if ((+r.n)>maxn) maxn=+r.n;
+      if (isRec(r) && r.media!=null) irec=+r.media;
+    });
+    var mg = swn ? sw/swn : null;
+    el('cl-media').textContent = mg!=null ? mg.toFixed(2) : '—';
+    el('cl-media-faixa').textContent = mg!=null ? faixa(mg).label : '';
+    el('cl-irec').textContent = irec!=null ? irec.toFixed(2) : '—';
+    el('cl-irec-faixa').textContent = irec!=null ? faixa(irec).label : 'sem dados';
+    el('cl-n').textContent = maxn || '—';
+
+    var acc={};
+    rows.forEach(function(r){
+      if (isRec(r) || !(r.n>0 && r.media!=null)) return;
+      var t = TEMA[r.dimensao] || 'Outros';
+      acc[t]=acc[t]||{s:0,n:0}; acc[t].s+=(+r.media)*(+r.n); acc[t].n+=(+r.n);
+    });
+    var ordem = TEMA_ORDER.slice(); Object.keys(acc).forEach(function(k){ if(ordem.indexOf(k)<0) ordem.push(k); });
+    el('cl-temas').innerHTML = ordem.filter(function(t){return acc[t];})
+      .map(function(t){ return bar(t, null, acc[t].s/acc[t].n); }).join('');
+
+    el('cl-perguntas').innerHTML = rows.filter(function(r){ return !isRec(r); })
+      .sort(function(a,b){ return (b.media==null?-1:+b.media) - (a.media==null?-1:+a.media); })
+      .map(function(r){ return bar(r.texto, r.dimensao, (r.n>0&&r.media!=null)? +r.media : null); }).join('');
+
+    if (coments && coments.length){
+      el('cl-coments').innerHTML = coments.map(function(c){
+        var txt = (typeof c==='string') ? c : (c.texto||c.comentario||c.mensagem||'');
+        var meta = c && (c.unidade||c.dia) ? esc([c.unidade,c.dia].filter(Boolean).join(' · ')) : '';
+        return txt ? ('<div class="cl-coment">'+esc(txt)+(meta?'<small>'+meta+'</small>':'')+'</div>') : '';
+      }).join('');
+    } else {
+      el('cl-coments').innerHTML = '<div class="cl-bar-val empty" style="text-align:left">Sem comentários ainda.</div>';
+    }
+
+    el('cl-legenda').innerHTML = FAIXAS.slice().reverse().map(function(f){
+      return '<span class="cl-leg"><i style="background:'+f.cor+'"></i>'+f.label+'</span>';
+    }).join('');
+    el('cl-empty').hidden=true; el('cl-content').hidden=false;
+  }
+
+  var loaded=false;
+  window.climaDashLoad=function(){
+    if (loaded) return; loaded=true;
+    function go(supa){
+      supa.schema('tata_plus').rpc('av_clima_resumo',{p_desde:null,p_min_n:0}).then(function(res){
+        var rows = (res && !res.error && Array.isArray(res.data)) ? res.data : [];
+        supa.schema('tata_plus').rpc('av_clima_comentarios',{p_desde:null,p_limite:50}).then(function(cres){
+          render(rows, (cres && !cres.error && Array.isArray(cres.data)) ? cres.data : []);
+        }).catch(function(){ render(rows, []); });
+      }).catch(function(){ el('cl-loading').hidden=true; el('cl-empty').hidden=false; });
+    }
+    if (window.__lideresSupa) go(window.__lideresSupa);
+    else window.addEventListener('lideres:supa', function(){ go(window.__lideresSupa); }, {once:true});
+  };
+})();
+
 function setTab(t){
   document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
   var btn=document.getElementById('tab-'+t); if(btn) btn.classList.add('active');
   document.querySelectorAll('.dash-view').forEach(function(v){v.classList.remove('active');});
   var v=document.getElementById('view-'+t); if(v) v.classList.add('active');
+  if(t==='dashboard' && window.climaDashLoad) window.climaDashLoad();
   window.scrollTo(0,0);
 }
 </script>
