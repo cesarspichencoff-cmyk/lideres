@@ -1,0 +1,76 @@
+name: Verify TATA House Final 1a436 Temp
+
+on:
+  push:
+    branches:
+      - verify/tatahouse-final-1a436-20260909
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 14abbeb23dc0df168b24080c8c36d5523bee147a
+          fetch-depth: 0
+      - name: Anchor exact candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "14abbeb23dc0df168b24080c8c36d5523bee147a"
+          test "$(git rev-parse HEAD^)" = "1a436f058a951493fd609785ad0b9b990557ac24"
+          git diff --check HEAD^ HEAD
+      - name: Scope and drift preservation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --name-only HEAD^ HEAD > /tmp/files
+          cat /tmp/files
+          test "$(wc -l < /tmp/files | tr -d ' ')" = "47"
+          test "$(grep -vc '^compliance/kpis/tatahouse/' /tmp/files || true)" = "0"
+          ! grep -q '^compliance/kpis/rh/cei.html$' /tmp/files
+          ! grep -q '^supabase/' /tmp/files
+          echo 'TATAHOUSE_SCOPE_47_47=PASS'
+          echo 'NEW_MAIN_DRIFT_PRESERVED=PASS'
+      - name: JSON parse
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in compliance/kpis/tatahouse/*.json; do node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" "$f"; done
+          echo 'JSON_PARSE=PASS'
+      - name: JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in compliance/kpis/tatahouse/*.js; do node --check "$f"; done
+          echo 'JS_SYNTAX=PASS'
+      - name: Node contract suites
+        shell: bash
+        run: |
+          set -euo pipefail
+          n=0
+          for f in compliance/kpis/tatahouse/*.test.cjs; do
+            node "$f"
+            n=$((n+1))
+          done
+          echo "TATAHOUSE_TEST_FILES=$n"
+          test "$n" -ge 15
+          echo 'TATAHOUSE_CONTRACT_SUITES=PASS'
+      - name: Stock read-only contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          f=compliance/kpis/tatahouse/house_governanca_estoque_v1.js
+          grep -q "public.inventario_minimo" "$f"
+          grep -q "public.inventario_contagem" "$f"
+          ! grep -E '\.(insert|update|delete|upsert)\(' "$f"
+          grep -q "house_governanca_estoque_v1.js" compliance/kpis/tatahouse/planejador-v2.html
+          echo 'STOCK_READ_ONLY=PASS'
+      - name: Final receipt
+        run: |
+          echo 'LIDERES_FINAL_RECOMPOSITION=PASS'
+          echo 'BASE=1a436f058a951493fd609785ad0b9b990557ac24'
+          echo 'CANDIDATE=14abbeb23dc0df168b24080c8c36d5523bee147a'
