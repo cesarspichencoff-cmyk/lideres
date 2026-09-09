@@ -67,12 +67,15 @@
   <script>window.GOV_PAGE_ID='governanca-kpis-tatahouse-cardapio';</script>
   <script src="/compliance/gate.js"></script>
   <script src="/compliance/kpis/tatahouse/house_governanca_readonly_v1.js"></script>
+  <script src="/compliance/kpis/tatahouse/house_governanca_restricoes_v1.js"></script>
   <script src="/compliance/kpis/tatahouse/house_governanca_planejador_v1.js"></script>
   <script>
     (function(){
       var api=window.TataHouseGovernancaPlanejadorV1;
       var ro=window.TataHouseGovernancaReadonlyV1;
+      var restr=window.TataHouseGovernancaRestricoesV1;
       var evidenciaAtual=null;
+      var contextoAberto=null;
       var evidenciaPronta=false;
       var iframe=document.getElementById('house-frame');
       var workspace=document.getElementById('workspace');
@@ -118,7 +121,19 @@
       window.addEventListener('message',function(event){
         if(!ro||event.origin!==ro.houseOrigin||event.source!==iframe.contentWindow)return;
         var msg=event.data;
-        if(!msg||msg.type!==ro.readyType||msg.versao!==1)return;
+        if(!msg||typeof msg!=='object')return;
+        if(restr&&msg.type===restr.requestType){
+          if(contextoAberto&&window.__lideresSupa){
+            restr.responderPedido(event,{
+              iframe:iframe,
+              supa:window.__lideresSupa,
+              unidade:contextoAberto.unidadeFonte,
+              semanaId:contextoAberto.semanaId
+            }).catch(function(){});
+          }
+          return;
+        }
+        if(msg.type!==ro.readyType||msg.versao!==1)return;
         evidenciaPronta=true;
         enviarEvidenciaSePronto();
       });
@@ -146,6 +161,7 @@
         try{
           if(limparConexao){limparConexao();limparConexao=null;}
           var ctx=contextoAtual();
+          contextoAberto=ctx;
           evidenciaAtual=null;
           evidenciaPronta=false;
           receipt.classList.remove('show');
