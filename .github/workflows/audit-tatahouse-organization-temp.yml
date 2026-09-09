@@ -1,0 +1,59 @@
+name: Audit TATA House Organization Temp
+
+on:
+  push:
+    branches:
+      - verify/tatahouse-organization-audit-20260909
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 14abbeb23dc0df168b24080c8c36d5523bee147a
+          fetch-depth: 0
+      - name: Structural audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=1a436f058a951493fd609785ad0b9b990557ac24
+          test "$(git rev-parse HEAD)" = "14abbeb23dc0df168b24080c8c36d5523bee147a"
+          test "$(git rev-parse HEAD^)" = "$base"
+          git diff --check "$base" HEAD
+          git diff --name-only "$base" HEAD > /tmp/files
+          echo "CHANGED=$(wc -l < /tmp/files | tr -d ' ')"
+          echo "OUTSIDE_TATAHOUSE=$(grep -vc '^compliance/kpis/tatahouse/' /tmp/files || true)"
+          echo '--- EXTENSIONS ---'
+          awk -F. '{print $NF}' /tmp/files | sort | uniq -c | sort -nr
+          echo '--- FILES ---'
+          cat /tmp/files
+          echo '--- RUNTIME REFERENCES OF CHANGED SUPPORT FILES ---'
+          while read -r f; do
+            b=$(basename "$f")
+            case "$b" in
+              *.html) continue ;;
+            esac
+            refs=$(grep -RIl --exclude="$b" --exclude='*.test.cjs' -- "$b" compliance/kpis/tatahouse 2>/dev/null | tr '\n' ',' || true)
+            printf '%s | refs=%s\n' "$b" "${refs:-NONE}"
+          done < /tmp/files
+          echo '--- LOCAL STORAGE ---'
+          grep -RIn --include='*.js' --include='*.html' 'localStorage' compliance/kpis/tatahouse || true
+          echo '--- SUPABASE MUTATION PRIMITIVES ---'
+          grep -RInE --include='*.js' --include='*.html' '\.(insert|update|delete|upsert)\(' compliance/kpis/tatahouse || true
+          echo '--- NETWORK WRITE PRIMITIVES ---'
+          grep -RInE --include='*.js' --include='*.html' 'fetch\([^)]*\{[^}]*method[[:space:]]*:[[:space:]]*["'"'](POST|PUT|PATCH|DELETE)' compliance/kpis/tatahouse || true
+          echo '--- SQL WRITE TOKENS IN CHANGED SQL ---'
+          for f in $(grep '\.sql$' /tmp/files || true); do grep -Ein '\b(insert|update|delete|alter|create|drop|grant|revoke|truncate)\b' "$f" || true; done
+          echo '--- SECRET-LIKE PATTERNS ---'
+          grep -RInE --include='*.js' --include='*.html' --include='*.json' '(service_role|SUPABASE_SERVICE|BEGIN PRIVATE KEY|ghp_[A-Za-z0-9]+|sk-[A-Za-z0-9]{20,})' compliance/kpis/tatahouse || true
+          echo '--- EXISTING MEALS SQL PRESERVED ---'
+          test "$(git rev-parse "$base":compliance/kpis/tatahouse/refeicoes_relatorio_detalhado.sql)" = "$(git rev-parse HEAD:compliance/kpis/tatahouse/refeicoes_relatorio_detalhado.sql)"
+          echo MEALS_SQL_PRESERVED=PASS
+          echo '--- TEMP/EDITOR JUNK ---'
+          if grep -Ei '(^|/)(\.DS_Store|Thumbs\.db|.*\.bak|.*\.tmp|.*~|verify-|temp-)' /tmp/files; then exit 1; fi
+          echo TEMP_JUNK=0
+          echo ORGANIZATION_AUDIT=PASS
