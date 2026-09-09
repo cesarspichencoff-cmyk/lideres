@@ -1,5 +1,6 @@
 name: Verify House Readiness 20260909
 
+# Reexecução controlada: prova idempotente do manifesto já materializado.
 on:
   push:
     branches:
