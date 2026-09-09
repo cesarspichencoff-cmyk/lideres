@@ -20,8 +20,14 @@
   }
 
   function numero(v) {
+    if (v === null || v === undefined || v === '') return null;
     var n = Number(v);
     return Number.isFinite(n) ? n : null;
+  }
+
+  function naoNegativo(v) {
+    var n = numero(v);
+    return n === null ? null : Math.max(0, n);
   }
 
   function inteiroNaoNegativo(v) {
@@ -98,17 +104,32 @@
     var unidade = texto(raw.unidade) || unidadeEsperada;
     if (unidade !== unidadeEsperada) return null;
     var avaliacao = numero(raw.aval_geral);
-    var nAvaliacoes = inteiroNaoNegativo(raw.n_avaliacoes);
+    var indice = naoNegativo(raw.indice_saudavel);
     return {
       data: data,
       unidade: unidade,
       status: texto(raw.status),
       resumo: texto(raw.resumo),
       principal: principalDoDia(raw),
-      custoTotal: numero(raw.custo_total),
-      desperdicioTotal: numero(raw.desperdicio_total),
+      custoTotal: naoNegativo(raw.custo_total),
+      desperdicioTotal: naoNegativo(raw.desperdicio_total),
       avaliacaoMedia: avaliacao === null ? null : Math.max(0, Math.min(5, avaliacao)),
-      nAvaliacoes: nAvaliacoes
+      nAvaliacoes: inteiroNaoNegativo(raw.n_avaliacoes),
+      almocoPlanejado: naoNegativo(raw.almoco_qtd),
+      jantarPlanejado: naoNegativo(raw.jantar_qtd),
+      marmitasPlanejado: naoNegativo(raw.marmitas_qtd),
+      almocoServido: naoNegativo(raw.almoco_servido),
+      jantarServido: naoNegativo(raw.jantar_servido),
+      marmitasServido: naoNegativo(raw.marmitas_servido),
+      planejadoTotal: naoNegativo(raw.planejado_total),
+      servidoTotal: naoNegativo(raw.servido_total),
+      indiceSaudavel: indice === null ? null : Math.min(100, indice),
+      kcal: naoNegativo(raw.kcal),
+      proteinaG: naoNegativo(raw.proteina_g),
+      carbG: naoNegativo(raw.carb_g),
+      gorduraG: naoNegativo(raw.gordura_g),
+      fibraG: naoNegativo(raw.fibra_g),
+      porcaoG: naoNegativo(raw.porcao_g)
     };
   }
 
@@ -125,7 +146,13 @@
         somaNotasPonderada: 0,
         amostraAvaliacoes: 0,
         somaCustos: 0,
-        diasComCusto: 0
+        diasComCusto: 0,
+        somaDesperdicioDia: 0,
+        diasComDesperdicio: 0,
+        somaServidoDia: 0,
+        diasComServido: 0,
+        somaPlanejadoDia: 0,
+        diasComPlanejado: 0
       };
       atual.ocorrencias8Semanas += 1;
       if (dia.data >= corte4) atual.ocorrencias4Semanas += 1;
@@ -136,6 +163,18 @@
       if (dia.custoTotal !== null) {
         atual.somaCustos += dia.custoTotal;
         atual.diasComCusto += 1;
+      }
+      if (dia.desperdicioTotal !== null) {
+        atual.somaDesperdicioDia += dia.desperdicioTotal;
+        atual.diasComDesperdicio += 1;
+      }
+      if (dia.servidoTotal !== null) {
+        atual.somaServidoDia += dia.servidoTotal;
+        atual.diasComServido += 1;
+      }
+      if (dia.planejadoTotal !== null) {
+        atual.somaPlanejadoDia += dia.planejadoTotal;
+        atual.diasComPlanejado += 1;
       }
       mapa[chave] = atual;
     });
@@ -148,7 +187,10 @@
         ocorrencias4Semanas: a.ocorrencias4Semanas,
         avaliacaoMedia: a.amostraAvaliacoes ? Number((a.somaNotasPonderada / a.amostraAvaliacoes).toFixed(2)) : null,
         amostraAvaliacoes: a.amostraAvaliacoes,
-        custoMedioDia: a.diasComCusto ? Number((a.somaCustos / a.diasComCusto).toFixed(2)) : null
+        custoMedioDia: a.diasComCusto ? Number((a.somaCustos / a.diasComCusto).toFixed(2)) : null,
+        desperdicioMedioDia: a.diasComDesperdicio ? Number((a.somaDesperdicioDia / a.diasComDesperdicio).toFixed(2)) : null,
+        servidoMedioDia: a.diasComServido ? Number((a.somaServidoDia / a.diasComServido).toFixed(1)) : null,
+        planejadoMedioDia: a.diasComPlanejado ? Number((a.somaPlanejadoDia / a.diasComPlanejado).toFixed(1)) : null
       };
     }).sort(function (a, b) {
       return b.ocorrencias4Semanas - a.ocorrencias4Semanas || b.ocorrencias8Semanas - a.ocorrencias8Semanas || a.nome.localeCompare(b.nome, 'pt-BR');
@@ -202,12 +244,29 @@
           custo_total: d.custoTotal,
           desperdicio_total: d.desperdicioTotal,
           aval_geral: d.avaliacaoMedia,
-          n_avaliacoes: d.nAvaliacoes
+          n_avaliacoes: d.nAvaliacoes,
+          almoco_qtd: d.almocoPlanejado,
+          jantar_qtd: d.jantarPlanejado,
+          marmitas_qtd: d.marmitasPlanejado,
+          almoco_servido: d.almocoServido,
+          jantar_servido: d.jantarServido,
+          marmitas_servido: d.marmitasServido,
+          planejado_total: d.planejadoTotal,
+          servido_total: d.servidoTotal,
+          indice_saudavel: d.indiceSaudavel,
+          kcal: d.kcal,
+          proteina_g: d.proteinaG,
+          carb_g: d.carbG,
+          gordura_g: d.gorduraG,
+          fibra_g: d.fibraG,
+          porcao_g: d.porcaoG
         };
       }) : []
     });
     if (!reconstruida) return null;
     if (!entrada.periodo || entrada.periodo.de !== reconstruida.periodo.de || entrada.periodo.ate !== reconstruida.periodo.ate) return null;
+    if (JSON.stringify(entrada.dias || []) !== JSON.stringify(reconstruida.dias)) return null;
+    if (JSON.stringify(entrada.principais || []) !== JSON.stringify(reconstruida.principais)) return null;
     return reconstruida;
   }
 
