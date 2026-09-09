@@ -1,0 +1,57 @@
+{
+  "contrato": "tata-house-governanca-avaliacoes-backend",
+  "versao": 1,
+  "estado": "PRODUCTION_QR_USES_EXISTING_TATA_PLUS_PATH__LOCAL_HANDOFF_PROOF_ONLY",
+  "decisaoArquiteturalEm": "2026-09-09",
+  "objetivo": "Unificar a avaliação do QR com o módulo TATÁ já existente para funcionários, sem criar um segundo backend de votos e sem dar acesso de Governança aos funcionários.",
+  "caminhoProducao": {
+    "entradaCompatibilidade": "https://tata-house.github.io/avaliar",
+    "destinoFuncionario": "https://plus.tatasushi.tech/avaliar",
+    "regra": "Abertura standalone do /avaliar do House encaminha para o /avaliar do TATÁ Plus. O fluxo local do House fica restrito ao handoff/prova quando aberto pela Governança.",
+    "frontendCanonico": "tata-sushi/plus",
+    "rpcExistente": "tata_plus.avaliar_cardapio",
+    "schemaOperacional": "tata_refeicoes",
+    "tabelaAgregadaNoRelatorio": "tata_refeicoes.cardapio_avaliacoes",
+    "evidenciaRepositorio": [
+      "tata-sushi/plus commit b7f9fccef9ea3b92138c0dc1c4be875673a14f45 — cria fluxo real de cardápio/avaliação, 1 por pessoa/dia e unidade carimbada",
+      "tata-sushi/plus commit 95e81d2c45a395461eb574a09aa227051470d6bc — front e regra backend documentada de avaliação a partir de 12h America/Sao_Paulo",
+      "tata-sushi/lideres compliance/kpis/tatahouse/refeicoes_relatorio_detalhado.sql — agrega cardapio_avaliacoes por dia e devolve aval_geral/n_avaliacoes"
+    ],
+    "liveSupabaseNestaExecucao": "NOT_LOADED_PERMISSION_DENIED",
+    "classificacao": "KNOWN_BY_CANONICAL_REPOSITORIES__NOT_FRESHLY_LIVE_INSPECTED"
+  },
+  "porQueNaoCriarNovoBackend": [
+    "o TATÁ Plus já possui identidade do funcionário e fluxo oficial de avaliação",
+    "o backend existente já resolve uma avaliação por pessoa/dia e unidade",
+    "um endpoint anônimo novo para o QR criaria risco de spam, dupla contagem e segunda fonte de verdade",
+    "encaminhar o QR ao Plus faz QR e módulo do funcionário computarem no mesmo dataset"
+  ],
+  "handoffLocalPreservado": {
+    "core": "house_governanca_avaliacoes_ingest_v1.js",
+    "receiver": "house_governanca_avaliacoes_local_v1.js",
+    "uso": "PROVA_CONTROLADA_E_COMPATIBILIDADE_NAO_CAMINHO_DE_VOTO_REAL",
+    "regraOutbox": "somente IDs confirmados por ACK válido podem sair da outbox",
+    "persistenciaSupabase": "NONE"
+  },
+  "proibicoes": [
+    "não criar tabela/RPC/migration nova apenas para o QR",
+    "não expor service_role ou secret key ao House ou ao navegador",
+    "não permitir que funcionário acesse Governança",
+    "não somar avaliação local House com avaliação oficial do Plus sem deduplicação",
+    "não alterar módulos do TATÁ Plus fora do fluxo TATÁ já existente"
+  ],
+  "efeitoNoPlanejamento": {
+    "fonteAceitacaoOficial": "tata_plus.refeicoes_relatorio_detalhado -> aval_geral + n_avaliacoes",
+    "regraDePrecedencia": "quando existe amostra oficial, ela vence no Planejador; aceitação local do House é fallback",
+    "motivo": "evita dupla contagem quando QR e Plus convergem para o mesmo backend"
+  },
+  "mutacoesBackendNestaFase": 0,
+  "necessitaAutorizacaoParaMigration": false,
+  "classificacao": {
+    "fluxoFuncionarioPlus": "KNOWN_BY_CANONICAL_REPOSITORY",
+    "redirecionamentoQRCodeCandidate": "IMPLEMENTED_IN_HOUSE_FORK_NOT_PRODUCTION",
+    "persistidorHouseParaSupabase": "SUPERSEDED_NOT_NEEDED_FOR_PRODUCTION_QR",
+    "schemaLiveExato": "UNKNOWN_NOT_LOADED",
+    "backendMutation": "NONE"
+  }
+}
