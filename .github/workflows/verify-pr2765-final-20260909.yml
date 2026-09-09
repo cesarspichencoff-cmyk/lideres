@@ -1,0 +1,48 @@
+name: Verify PR2765 Final 20260909
+
+on:
+  push:
+    branches:
+      - verify/pr2765-final-20260909
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prove-final-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+      - name: Harness-only delta
+        run: |
+          expected='.github/workflows/verify-pr2765-final-20260909.yml'
+          actual=$(git diff --name-only baf1ed41a6e1799a9fa4351bfaa07b18f7c5799d..HEAD)
+          test "$actual" = "$expected" || { echo "$actual"; exit 1; }
+          echo 'PR2765_PROOF_HARNESS_ONLY=PASS'
+      - name: Exact readiness blob
+        run: |
+          actual=$(git hash-object compliance/kpis/tatahouse/house_governanca_readiness_v1.json)
+          test "$actual" = '903574668022c3ed540d02ba7387bb38521c259d' || { echo "$actual"; exit 1; }
+          echo 'PR2765_READINESS_EXACT_BLOB=PASS'
+      - name: JavaScript syntax
+        run: |
+          find compliance/kpis/tatahouse -maxdepth 1 \( -name '*.js' -o -name '*.cjs' \) -print0 | xargs -0 -n1 node --check
+          echo 'PR2765_JS_SYNTAX=PASS'
+      - name: Tatahouse tests
+        run: |
+          set -euo pipefail
+          count=0
+          for t in compliance/kpis/tatahouse/*.test.cjs; do
+            echo "==> $t"
+            node "$t"
+            count=$((count+1))
+          done
+          test "$count" -eq 14
+          echo 'PR2765_TATAHOUSE_TEST_FILES=14'
+          echo 'PR2765_FINAL_SNAPSHOT=PASS'
