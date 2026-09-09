@@ -1,0 +1,61 @@
+{
+  "contrato": "tata-house-governanca-design",
+  "versao": 2,
+  "escopoVisual": "SOMENTE_IMPRESSO_HOUSE",
+  "objetivo": "Revisar e elevar somente a arte impressa do TATÁ House — cardápio, PosterSemana e PlaquinhaQR — preservando integralmente a interface e a tipografia do Portal Líderes.",
+  "fontesDeVerdade": {
+    "house": {
+      "repo": "tata-house/tata-house.github.io",
+      "branch": "tata-house",
+      "sha": "7f77fc88a12b11d40a185230f50d34172528082e",
+      "arquivos": ["src/app/layout.tsx", "tailwind.config.ts", "src/components/cardapio/PlaquinhaQR.tsx", "src/components/cardapio/PosterSemana.tsx"]
+    },
+    "lideres": {
+      "repo": "tata-sushi/lideres",
+      "branch": "main",
+      "sha": "42b795f879f11dd2cd290eec8b26993f7da5e9c9",
+      "politicaTipografia": "PRESERVE_AS_IS__NO_CHANGES",
+      "politicaInterface": "PRESERVE_AS_IS__NO_VISUAL_RESTYLE"
+    }
+  },
+  "restricoesDeEscopo": {
+    "alterarFonteLideres": false,
+    "alterarTipografiaLideres": false,
+    "alterarDesignSystemLideres": false,
+    "alterarShellLideres": false,
+    "alterarTabelasLideresPorMotivoVisual": false,
+    "aplicarPadronizacaoVisualNaTelaDoLideres": false
+  },
+  "impressoHouse": {
+    "owner": "TATÁ House",
+    "alvos": ["PosterSemana", "PlaquinhaQR", "arte do cardápio impresso"],
+    "preservar": [
+      "QR gerado localmente",
+      "ação de impressão",
+      "PosterSemana A4",
+      "link de avaliação unificado com TATÁ Plus",
+      "identidade premium e gastronômica do House",
+      "hierarquia editorial legível à distância"
+    ],
+    "direcao": [
+      "usar a identidade existente do House como ponto de partida, não uma cópia visual do Líderes",
+      "tratar tipografia, espaçamento, contraste, hierarquia e composição como sistema de impressão",
+      "priorizar leitura rápida do prato, dia e chamada para QR",
+      "manter coerência de marca sem importar fonte ou layout administrativo do Líderes"
+    ],
+    "proibido": [
+      "substituir o impresso por tabela administrativa do Líderes",
+      "remover QR para simplificar integração",
+      "trocar o QR por sistema de votação paralelo",
+      "alterar fontes do Líderes como consequência desta revisão"
+    ]
+  },
+  "classificacao": {
+    "fontes": "PROVEN_VERSIONED",
+    "correcaoEscopoHumana": "AUTHORIZED_AND_EXPLICIT",
+    "mudancaFonteLideres": "PROIBIDA_NESTE_ESCOPO",
+    "mudancaVisualLideres": "OUT_OF_SCOPE",
+    "arteImpressaHouse": "IN_SCOPE__REVIEW_AND_REFINEMENT",
+    "preservacaoQR": "REQUIRED"
+  }
+}
