@@ -1,0 +1,114 @@
+name: Rebase PR2765 Main19483 Temp
+
+on:
+  push:
+    branches:
+      - rebase/pr2765-main-19483-20260909
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recompose-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+      - name: Anchor exact new base
+        run: |
+          set -euo pipefail
+          BASE=19483da4e2510cdd337cd0fecec8580c7f818161
+          test "$(git rev-parse HEAD^)" = "$BASE"
+          git cat-file -e 42b795f879f11dd2cd290eec8b26993f7da5e9c9^{commit}
+          git cat-file -e baf1ed41a6e1799a9fa4351bfaa07b18f7c5799d^{commit}
+          echo 'PR2765_NEW_BASE_ANCHORED=PASS'
+      - name: Apply exact old-PR delta onto new main
+        run: |
+          set -euo pipefail
+          OLD=42b795f879f11dd2cd290eec8b26993f7da5e9c9
+          CAND=baf1ed41a6e1799a9fa4351bfaa07b18f7c5799d
+          git diff --binary "$OLD" "$CAND" -- > /tmp/pr2765.patch
+          git diff --name-only "$OLD" "$CAND" | sort > /tmp/expected-files
+          test "$(wc -l < /tmp/expected-files | tr -d ' ')" = '45'
+          git apply --3way --index /tmp/pr2765.patch
+          echo 'PR2765_PATCH_3WAY=PASS'
+      - name: Refresh base evidence without promoting production
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const p = 'compliance/kpis/tatahouse/house_governanca_readiness_v1.json';
+          const t = 'compliance/kpis/tatahouse/house_governanca_readiness_v1.test.cjs';
+          const OLD = '42b795f879f11dd2cd290eec8b26993f7da5e9c9';
+          const NEW = '19483da4e2510cdd337cd0fecec8580c7f818161';
+          const SOURCE = 'baf1ed41a6e1799a9fa4351bfaa07b18f7c5799d';
+          const m = JSON.parse(fs.readFileSync(p, 'utf8'));
+          if (m.fontes?.lideresProducao?.sha !== OLD) throw new Error('fonte Líderes esperada não corresponde à base anterior');
+          m.evidenciaEm = '2026-09-09T12:51:00.000Z';
+          m.fontes.lideresProducao.sha = NEW;
+          m.fontes.lideresFeature.rebasedSourceHead = SOURCE;
+          m.fontes.lideresFeature.rebasedOn = NEW;
+          m.fontes.lideresFeature.rebaseRun = process.env.GITHUB_RUN_ID || 'UNKNOWN';
+          const g = m.gates.find((x) => x.id === 'lideres_base_fresh');
+          if (!g) throw new Error('gate lideres_base_fresh ausente');
+          g.status = 'PASS';
+          g.classificacao = 'PROVEN_CANDIDATE';
+          g.resumo = 'O candidato Líderes foi recomposto sobre o main canônico 19483da4… preservando o novo padrão de header e o slice House.';
+          g.evidencia = `base ${NEW} · fonte do slice ${SOURCE} · recompose run ${process.env.GITHUB_RUN_ID || 'UNKNOWN'}`;
+          m.evidenceRebase = {
+            classificacao: 'PROVEN_CANDIDATE__PRODUCTION_UNCHANGED',
+            oldBase: OLD,
+            newBase: NEW,
+            sourceHead: SOURCE,
+            overlapFiles: ['compliance/kpis/tatahouse/cardapio.html'],
+            overlapSemantics: 'ORTHOGONAL_HEADER_TITLE_REMOVAL_PRESERVED',
+            run: process.env.GITHUB_RUN_ID || 'UNKNOWN',
+            productionCrossed: false
+          };
+          fs.writeFileSync(p, JSON.stringify(m, null, 2) + '\n');
+          let s = fs.readFileSync(t, 'utf8');
+          if (!s.includes(`assert.equal(manifesto.fontes.lideresProducao.sha, '${OLD}');`)) throw new Error('assert de base antiga ausente');
+          s = s.replace(`assert.equal(manifesto.fontes.lideresProducao.sha, '${OLD}');`, `assert.equal(manifesto.fontes.lideresProducao.sha, '${NEW}');`);
+          fs.writeFileSync(t, s);
+          NODE
+          git add compliance/kpis/tatahouse/house_governanca_readiness_v1.json compliance/kpis/tatahouse/house_governanca_readiness_v1.test.cjs
+          echo 'PR2765_BASE_EVIDENCE_REFRESH=PASS'
+      - name: Scope and overlap safety
+        run: |
+          set -euo pipefail
+          git diff --cached --check
+          git diff --cached --name-only | sort > /tmp/actual-files
+          diff -u /tmp/expected-files /tmp/actual-files
+          test "$(wc -l < /tmp/actual-files | tr -d ' ')" = '45'
+          ! grep -Eq '<div class="header-title">[^<]*</div>' compliance/kpis/tatahouse/cardapio.html
+          grep -Fq 'house_governanca_local_bridge_v1.js' compliance/kpis/tatahouse/cardapio.html
+          grep -Fq 'Publicar no TATÁ House' compliance/kpis/tatahouse/cardapio.html
+          echo 'PR2765_EXACT_45_FILE_SCOPE=PASS'
+          echo 'PR2765_NEW_HEADER_SEMANTICS_PRESERVED=PASS'
+          echo 'PR2765_HOUSE_BRIDGE_PRESERVED=PASS'
+      - name: JavaScript syntax
+        run: |
+          find compliance/kpis/tatahouse -maxdepth 1 \( -name '*.js' -o -name '*.cjs' \) -print0 | xargs -0 -n1 node --check
+          echo 'PR2765_JS_SYNTAX=PASS'
+      - name: Tatahouse tests
+        run: |
+          set -euo pipefail
+          count=0
+          for t in compliance/kpis/tatahouse/*.test.cjs; do
+            echo "==> $t"
+            node "$t"
+            count=$((count+1))
+          done
+          test "$count" -eq 14
+          echo 'PR2765_TATAHOUSE_TEST_FILES=14'
+      - name: Commit verified recomposition
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'chore(tatahouse): recompor candidato sobre main 19483'
+          git push
