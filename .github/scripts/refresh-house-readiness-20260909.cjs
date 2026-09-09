@@ -18,7 +18,7 @@ if (m.fontes?.houseFeature?.sha === HOUSE_CLEAN && m.evidenceRefresh?.id === '20
 
 m.evidenciaEm = new Date().toISOString();
 m.evidenceHead = LIDERES_SOURCE;
-m.evidenceHeadNota = 'Refresh de prontidão executado sobre o candidato Líderes f93cf3e… sem promover produção. O candidato House final limpo é 659b6b6e…; o refinamento impresso/QR foi revalidado no run 34335347051, eventos de demanda fail-closed no run 34336407542 e risco de preço sem dupla penalização no run 34337333229. O backend live do TATÁ Plus continua não carregado nesta sessão; detalhes live permanecem UNKNOWN. Nenhuma mutação Supabase foi executada nesta fase.';
+m.evidenceHeadNota = 'Refresh de prontidão executado sobre o candidato Líderes f93cf3e… sem promover produção. O candidato House final limpo é 659b6b6e…; o refinamento impresso/QR foi revalidado no run 34335347051, eventos de demanda fail-closed no run 34336407542 e risco de preço sem dupla penalização no run 34337333229. O backend live do TATÁ Plus continua não carregado nesta sessão; detalhes live permanecem UNKNOWN. A mutação Supabase desta fase em zero permanece preservada.';
 
 m.fontes.houseFeature = {
   repo: 'cesarspichencoff-cmyk/tata-house.github.io',
