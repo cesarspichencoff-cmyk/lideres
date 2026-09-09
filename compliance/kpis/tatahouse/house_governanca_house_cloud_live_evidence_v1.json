@@ -1,0 +1,112 @@
+{
+  "contrato": "tata-house-governanca-house-cloud-live-evidence",
+  "versao": 1,
+  "observadoEm": "2026-09-07",
+  "classificacaoGlobal": "HOUSE_CLOUD_BACKEND_LIVE_PROVEN__CODE_DB_CONTRACT_PROVEN__DEPLOYED_SECRET_TARGET_UNKNOWN",
+  "fontesCanonicas": {
+    "vertice": {
+      "repo": "cesarspichencoff-cmyk/vertice-runtime.",
+      "branch": "vertice-active",
+      "sha": "efc574cb4f90ab513e210dc524517af10ac162bd"
+    },
+    "houseProducao": {
+      "repo": "tata-house/tata-house.github.io",
+      "branch": "tata-house",
+      "sha": "6dc04827b195aaca9d4653618e5a40ca64a1a6f4"
+    },
+    "lideresMainObservado": {
+      "repo": "tata-sushi/lideres",
+      "branch": "main",
+      "sha": "299bf72f9fbe01cebe49edc2a1e63e279fb34e26"
+    }
+  },
+  "supabaseHouse": {
+    "projectRef": "ijnjhxwzazqebogzsxjb",
+    "projectName": "tata-house",
+    "region": "sa-east-1",
+    "status": "ACTIVE_HEALTHY",
+    "postgresMajor": "17",
+    "mutationPerformed": false,
+    "ddlPerformed": false
+  },
+  "tataEstado": {
+    "table": "public.tata_estado",
+    "rlsEnabled": true,
+    "rowsObserved": 51,
+    "spaceObserved": "tata-house",
+    "primaryKey": ["espaco", "chave"],
+    "columns": {
+      "espaco": "text",
+      "chave": "text",
+      "valor": "jsonb",
+      "atualizado_em": "timestamptz"
+    },
+    "latestObservedUpdateUtc": "2026-09-07T01:15:52.177Z",
+    "operationalKeysObserved": [
+      "semana.*",
+      "desperdicio.*",
+      "estoque",
+      "inventarios",
+      "fornecedores",
+      "ofertas",
+      "precos",
+      "historicoPrecos",
+      "__v2.auditoria",
+      "__v2.historicoPrecos"
+    ]
+  },
+  "realtime": {
+    "publication": "supabase_realtime",
+    "schema": "public",
+    "table": "tata_estado",
+    "published": true,
+    "frontendExpectedChannel": "tata_estado_rt",
+    "frontendExpectedFilter": "espaco=eq.tata-house"
+  },
+  "rls": {
+    "policy": "tata_estado_rw",
+    "roles": ["anon", "authenticated"],
+    "command": "ALL",
+    "using": "espaco = 'tata-house'",
+    "withCheck": "espaco = 'tata-house'",
+    "anonymousReadWritePresent": true,
+    "strongTeamBackendAuthPresent": false
+  },
+  "tableGrantsObserved": {
+    "anon": ["SELECT", "INSERT", "UPDATE", "DELETE", "REFERENCES", "TRIGGER", "TRUNCATE"],
+    "authenticated": ["SELECT", "INSERT", "UPDATE", "DELETE", "REFERENCES", "TRIGGER", "TRUNCATE"]
+  },
+  "advisors": {
+    "securityLintsObserved": 0,
+    "nota": "Zero lints nao equivale a autenticacao forte; a policy live continua permitindo anon no espaco tata-house."
+  },
+  "compatibilidadeCodigo": {
+    "localPrefix": "cardapio.v1.*",
+    "defaultSpace": "tata-house",
+    "table": "tata_estado",
+    "localFallbackPreserved": true,
+    "bootCloudReconciliationPreserved": true,
+    "offlineOutboxPreserved": true,
+    "threeWayWeekMergePreserved": true,
+    "largeStateCasPreserved": true,
+    "realtimeFilterMatchesLivePublication": true,
+    "classification": "PROVEN"
+  },
+  "limitesDaProva": {
+    "exactSupabaseProjectRefEmbeddedInCurrentlyServedHouseBuild": "UNKNOWN_SECRET_NOT_READABLE",
+    "lideresAuthenticatedTataPlusLiveRpc": "UNKNOWN_NOT_PROVEN_LIVE",
+    "houseCloudBackend": "PROVEN_LIVE",
+    "houseCodeToLiveDatabaseContract": "PROVEN",
+    "productionPromotionAuthorized": false,
+    "supabaseGovernancePersistenceAuthorized": false
+  },
+  "conclusao": {
+    "newHouseBackendRequired": false,
+    "parallelProviderRequired": false,
+    "newDdlRequiredForCurrentGate": false,
+    "houseCloudIsOperationalBase": true,
+    "lideresRemainsComplementaryOfficialEvidence": true,
+    "sensitiveGovernanceWritesToHouseCloud": "BLOCKED",
+    "nextEffectBoundary": "candidate review -> tests -> PR; production merge/deploy remains human-gated"
+  }
+}
