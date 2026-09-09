@@ -1,0 +1,85 @@
+name: Refresh TATA House Readiness Final Temp
+
+on:
+  push:
+    branches:
+      - verify/tatahouse-readiness-final-20260909
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: candidate/tatahouse-final-1a436
+          fetch-depth: 0
+      - name: Refresh final evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "14abbeb23dc0df168b24080c8c36d5523bee147a"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('compliance/kpis/tatahouse/house_governanca_readiness_v1.json')
+          j=json.loads(p.read_text())
+          j['fase']='HOUSE_COHESION_AND_STOCK_READONLY_PROVEN__PRODUCTION_PROMOTION_REQUIRED'
+          j['evidenciaEm']='2026-09-09T15:32:00.000Z'
+          j['evidenceHead']='14abbeb23dc0df168b24080c8c36d5523bee147a'
+          j['evidenceHeadNota']='Gate final recomposto sobre Líderes main 1a436f…: 47/47 arquivos restritos ao slice TATÁ House, drift paralelo de RH/clima preservado, contrato de estoque oficial read-only aprovado e House Cohesion Pass provado no SHA 3f3708b… . Produções House/Líderes permanecem não promovidas; mutações Supabase nesta fatia continuam zero.'
+          f=j['fontes']
+          f['lideresProducao']['sha']='1a436f058a951493fd609785ad0b9b990557ac24'
+          hf=f['houseFeature']
+          hf['branch']='feat/house-intelligence-v2-cohesion'
+          hf['sha']='3f3708b858a436bcc6d1da1d8e75d07522b3a1ca'
+          hf['productCommit']='3f3708b858a436bcc6d1da1d8e75d07522b3a1ca'
+          hf['testedSha']='3f3708b858a436bcc6d1da1d8e75d07522b3a1ca'
+          hf['testRun']='34368581187'
+          hf.setdefault('provas',{})['cohesionFinal']='34368581187'
+          lf=f['lideresFeature']
+          lf['sha']='14abbeb23dc0df168b24080c8c36d5523bee147a'
+          lf['testedSha']='14abbeb23dc0df168b24080c8c36d5523bee147a'
+          lf['testRun']='34370857530'
+          lf['rebasedSourceHead']='a8bc39fb12cec6d5bb26ec8e01fa135dc09f5989'
+          lf['rebasedOn']='1a436f058a951493fd609785ad0b9b990557ac24'
+          lf['rebaseRun']='34370857530'
+          gates={g.get('id'):g for g in j.get('gates',[])}
+          if 'house_production_preserved' in gates:
+            gates['house_production_preserved']['resumo']='O House em produção permanece no SHA 7f77fc88…; a evolução completa está isolada no candidato Cohesion 3f3708b… .'
+            gates['house_production_preserved']['evidencia']='House produção 7f77fc88a12b11d40a185230f50d34172528082e · candidato Cohesion 3f3708b858a436bcc6d1da1d8e75d07522b3a1ca'
+          if 'lideres_base_fresh' in gates:
+            gates['lideres_base_fresh']['resumo']='O candidato Líderes foi recomposto sobre o main canônico 1a436f…; o drift paralelo altera somente RH/clima e não toca os 47 arquivos TATÁ House.'
+            gates['lideres_base_fresh']['evidencia']='base 1a436f058a951493fd609785ad0b9b990557ac24 · candidato 14abbeb23dc0df168b24080c8c36d5523bee147a · run 34370857530'
+          if 'read_only_operational_metrics' in gates:
+            gates['read_only_operational_metrics']['resumo']='O House recebe evidência operacional oficial somente em leitura: refeições/custo/desperdício/avaliação/nutrição e estoque oficial unívoco por unidade+item; ambiguidades de departamento são excluídas.'
+            gates['read_only_operational_metrics']['evidencia']='readonly + estoque read-only contracts · House 34368581187 · Líderes stock sender 34368674096 · final recomposition 34370857530'
+          if 'house_candidate_ci' in gates:
+            gates['house_candidate_ci']['resumo']='O House Cohesion final passou prova exata materializada: typecheck, lint, 206 testes, build e delta de produção.'
+            gates['house_candidate_ci']['evidencia']='House SHA 3f3708b858a436bcc6d1da1d8e75d07522b3a1ca · run 34368581187'
+          if 'lideres_candidate_ci' in gates:
+            gates['lideres_candidate_ci']['resumo']='O candidato Líderes final passou escopo 47/47, parse JSON, sintaxe JS, todas as suítes Node, preservação do drift e contrato de estoque somente leitura.'
+            gates['lideres_candidate_ci']['evidencia']='Líderes candidato 14abbeb23dc0df168b24080c8c36d5523bee147a · run 34370857530 · stock sender original 34368674096'
+          if 'house_production_review' in gates:
+            gates['house_production_review']['resumo']='O House Cohesion final está comprovado, mas ainda não foi promovido à branch canônica por bloqueio 403 da integração GitHub; requer promoção humana no GitHub.'
+          if 'lideres_production_review' in gates:
+            gates['lideres_production_review']['resumo']='O PR Líderes está tecnicamente recomposto e provado sobre a base atual; merge/deploy continuam fronteira humana separada após promoção do House.'
+          p.write_text(json.dumps(j,ensure_ascii=False,indent=2)+'\n')
+          PY
+          git diff --check
+          for f in compliance/kpis/tatahouse/*.json; do node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" "$f"; done
+          for f in compliance/kpis/tatahouse/*.test.cjs; do node "$f"; done
+          git diff --name-only
+          test "$(git diff --name-only | wc -l | tr -d ' ')" = "1"
+          test "$(git diff --name-only)" = "compliance/kpis/tatahouse/house_governanca_readiness_v1.json"
+      - name: Materialize metadata-only refresh
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add compliance/kpis/tatahouse/house_governanca_readiness_v1.json
+          git commit -m 'docs(tatahouse): atualizar readiness final da integração'
+          git push origin HEAD:candidate/tatahouse-final-1a436
