@@ -20,8 +20,6 @@ html[data-auth="pending"] body>*:not(#auth-gate){visibility:hidden}html[data-aut
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>window.GOV_PAGE_ID='governanca-kpis-tatahouse';</script>
 <script src="/compliance/gate.js"></script>
-<script src="/compliance/kpis/tatahouse/house_governanca_avaliacoes_ingest_v1.js"></script>
-<script src="/compliance/kpis/tatahouse/house_governanca_avaliacoes_local_v1.js"></script>
 
 <div class="shell">
   <header class="topbar">
@@ -33,7 +31,6 @@ html[data-auth="pending"] body>*:not(#auth-gate){visibility:hidden}html[data-aut
     <a href="cardapio.html">Cardápio</a>
     <a href="planejador-v2.html">Planejar semana</a>
     <span class="spacer"></span>
-    <a class="secondary" href="prontidao.html" data-readiness-entry="v1">Prontidão</a>
     <a class="secondary" href="index.html">Governança</a>
   </nav>
   <main class="frame-wrap">
@@ -93,10 +90,6 @@ html[data-auth="pending"] body>*:not(#auth-gate){visibility:hidden}html[data-aut
     try{frame.contentWindow.location.replace(HOUSE_ORIGIN+'/');}catch(e){frame.src=HOUSE_ORIGIN+'/';}
   });
 
-  window.addEventListener('tatahouse:governanca:avaliacoes-recebidas',function(evento){
-    var r=evento.detail||{};
-    if(r.novos>0)status.textContent='Avaliação House recebida · '+r.novos+' nova'+(r.novos===1?'':'s');
-  });
 
   window.setTimeout(esconder,8000);
 })();
