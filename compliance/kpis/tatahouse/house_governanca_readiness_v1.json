@@ -2,18 +2,62 @@
   "contrato": "tata-house-governanca-readiness",
   "versao": 1,
   "fase": "HOUSE_PLUS_INTELLIGENCE_CANDIDATE_PROVEN__PRODUCTION_REVIEW_REQUIRED",
-  "evidenciaEm": "2026-09-09T07:41:00Z",
-  "evidenceHead": "9f7dec703a291d3aa068a1960300fe7cd8e02cfa",
-  "evidenceHeadNota": "Este SHA do candidato Líderes passou o verificador completo 34325067044. O workflow temporário foi removido depois, sem alterar os arquivos do slice. O candidato House foi validado separadamente no run 34324888364 sobre 372b8057ded4443b4da15eac7daee332ab1be0f0 e limpo em 0987f700d65c974f6e56c7b4d258370c7ce49393. O backend live do TATÁ Plus não foi carregado nesta sessão por falta de permissão; por isso detalhes live continuam UNKNOWN. Esta integração não cria nem altera backend do Plus: reutiliza o fluxo canônico já versionado cardapio_app/avaliar_cardapio e mantém a mutação Supabase desta fase em zero.",
+  "evidenciaEm": "2026-09-09T12:43:55.430Z",
+  "evidenceHead": "f93cf3efdff0385bc99f0db2cb59c87e84f84388",
+  "evidenceHeadNota": "Refresh de prontidão executado sobre o candidato Líderes f93cf3e… sem promover produção. O candidato House final limpo é 659b6b6e…; o refinamento impresso/QR foi revalidado no run 34335347051, eventos de demanda fail-closed no run 34336407542 e risco de preço sem dupla penalização no run 34337333229. O backend live do TATÁ Plus continua não carregado nesta sessão; detalhes live permanecem UNKNOWN. A mutação Supabase desta fase em zero permanece preservada.",
   "fontes": {
-    "vertice": {"repo":"cesarspichencoff-cmyk/vertice-runtime.","branch":"vertice-active","sha":"efc574cb4f90ab513e210dc524517af10ac162bd"},
-    "houseProducao": {"repo":"tata-house/tata-house.github.io","branch":"tata-house","sha":"7f77fc88a12b11d40a185230f50d34172528082e"},
-    "lideresProducao": {"repo":"tata-sushi/lideres","branch":"main","sha":"42b795f879f11dd2cd290eec8b26993f7da5e9c9"},
-    "plusProducao": {"repo":"tata-sushi/plus","branch":"main","sha":"3ffb714adccfc81531b5f94af08dc1b3d4653788"},
-    "houseFeature": {"repo":"cesarspichencoff-cmyk/tata-house.github.io","branch":"feat/house-plus-intelligence-v2","sha":"0987f700d65c974f6e56c7b4d258370c7ce49393","testedSha":"372b8057ded4443b4da15eac7daee332ab1be0f0","testRun":"34324888364"},
-    "lideresFeature": {"repo":"cesarspichencoff-cmyk/lideres","branch":"feat/tatahouse-governanca-house-cloud-v1","sha":"b5dcb978b4b0918986dfb61bff040bcf9dd6494d","testedSha":"9f7dec703a291d3aa068a1960300fe7cd8e02cfa","testRun":"34325067044"}
+    "vertice": {
+      "repo": "cesarspichencoff-cmyk/vertice-runtime.",
+      "branch": "vertice-active",
+      "sha": "efc574cb4f90ab513e210dc524517af10ac162bd"
+    },
+    "houseProducao": {
+      "repo": "tata-house/tata-house.github.io",
+      "branch": "tata-house",
+      "sha": "7f77fc88a12b11d40a185230f50d34172528082e"
+    },
+    "lideresProducao": {
+      "repo": "tata-sushi/lideres",
+      "branch": "main",
+      "sha": "42b795f879f11dd2cd290eec8b26993f7da5e9c9"
+    },
+    "plusProducao": {
+      "repo": "tata-sushi/plus",
+      "branch": "main",
+      "sha": "3ffb714adccfc81531b5f94af08dc1b3d4653788"
+    },
+    "houseFeature": {
+      "repo": "cesarspichencoff-cmyk/tata-house.github.io",
+      "branch": "feat/house-plus-intelligence-v2",
+      "sha": "659b6b6ea66a5a531ea3460059c989109c69d002",
+      "productCommit": "e9dc5895a72389300c14a52a514118e3b14c4bd0",
+      "testedSha": "68befe6969a20f39decbf338fa6c97f869bd23fc",
+      "testRun": "34337333229",
+      "provas": {
+        "impressoQr": "34335347051",
+        "eventosDemanda": "34336407542",
+        "riscoPreco": "34337333229"
+      }
+    },
+    "lideresFeature": {
+      "repo": "cesarspichencoff-cmyk/lideres",
+      "branch": "feat/tatahouse-governanca-house-cloud-v1",
+      "sha": "f93cf3efdff0385bc99f0db2cb59c87e84f84388",
+      "testedSha": "9f7dec703a291d3aa068a1960300fe7cd8e02cfa",
+      "testRun": "34325067044",
+      "refreshBaseSha": "91e4758125bf073f95093ba1648a1b1aeda1cddf",
+      "refreshRun": "34352713646"
+    }
   },
-  "statusPermitidos": ["PASS","BLOCKED","DEFERRED","UNKNOWN","SIMULATION","NOT_AUTHORIZED","REVIEW_REQUIRED"],
+  "statusPermitidos": [
+    "PASS",
+    "BLOCKED",
+    "DEFERRED",
+    "UNKNOWN",
+    "SIMULATION",
+    "NOT_AUTHORIZED",
+    "REVIEW_REQUIRED"
+  ],
   "targets": {
     "pre_supabase_functional": {
       "titulo": "Integração funcional House × Plus × Governança",
@@ -31,7 +75,10 @@
         "lideres_scope_only_tatahouse",
         "house_candidate_ci",
         "lideres_candidate_ci",
-        "no_supabase_mutation"
+        "no_supabase_mutation",
+        "print_qr_regression",
+        "demand_events_fail_closed",
+        "price_risk_no_double_penalty"
       ]
     },
     "backend_activation": {
@@ -55,7 +102,10 @@
         "lideres_scope_only_tatahouse",
         "no_supabase_mutation",
         "house_production_review",
-        "lideres_production_review"
+        "lideres_production_review",
+        "print_qr_regression",
+        "demand_events_fail_closed",
+        "price_risk_no_double_penalty"
       ]
     },
     "planner_write_activation": {
@@ -71,8 +121,8 @@
       "id": "house_production_preserved",
       "status": "PASS",
       "classificacao": "PROVEN",
-      "resumo": "O House em produção permanece no SHA 7f77fc88…; a nova inteligência está isolada no fork/branch de candidato.",
-      "evidencia": "House produção 7f77fc88a12b11d40a185230f50d34172528082e · candidato final limpo 0987f700d65c974f6e56c7b4d258370c7ce49393"
+      "resumo": "O House em produção permanece no SHA 7f77fc88…; todas as novas melhorias permanecem isoladas no candidato limpo.",
+      "evidencia": "House produção 7f77fc88a12b11d40a185230f50d34172528082e · candidato final limpo 659b6b6ea66a5a531ea3460059c989109c69d002"
     },
     {
       "id": "lideres_base_fresh",
@@ -107,28 +157,28 @@
       "status": "PASS",
       "classificacao": "PROVEN_CANDIDATE",
       "resumo": "Quando existe amostra oficial do Plus, ela vence no motor do House; a aceitação local é somente fallback. Os dois conjuntos não são somados, evitando dupla contagem.",
-      "evidencia": "src/lib/cardapio/governanca-readonly.ts + governanca-readonly.test.ts · House run 34324888364"
+      "evidencia": "src/lib/cardapio/governanca-readonly.ts + governanca-readonly.test.ts · House full regression 34337333229"
     },
     {
       "id": "real_meal_count_calibration",
       "status": "PASS",
       "classificacao": "PROVEN_CANDIDATE",
       "resumo": "Contagens efetivamente servidas podem calibrar a demanda por dia da semana somente com amostra mínima; planejado não é tratado como consumo real.",
-      "evidencia": "demandaOficialPorDiaSemana + testes · House run 34324888364"
+      "evidencia": "demandaOficialPorDiaSemana + testes · House full regression 34337333229"
     },
     {
       "id": "manager_override_preserved",
       "status": "PASS",
       "classificacao": "PROVEN_CANDIDATE",
       "resumo": "A calibração automática só substitui o baseline padrão. Se o gestor alterou pessoas manualmente, a decisão humana prevalece.",
-      "evidencia": "contextoComInteligenciaOficial em governanca-candidatos.ts · House run 34324888364"
+      "evidencia": "contextoComInteligenciaOficial em governanca-candidatos.ts · House full regression 34337333229"
     },
     {
       "id": "qr_single_voting_path",
       "status": "PASS",
       "classificacao": "PROVEN_CANDIDATE_PLUS_CANONICAL_BACKEND_CONTRACT",
       "resumo": "Abertura standalone do QR legado /avaliar do House encaminha para plus.tatasushi.tech/avaliar. QR e módulo TATÁ usam, portanto, a mesma avaliação oficial do funcionário em vez de dois sistemas de voto.",
-      "evidencia": "House src/app/avaliar/page.tsx candidato + contrato versionado do Plus avaliar_cardapio · House run 34324888364"
+      "evidencia": "House src/app/avaliar/page.tsx candidato + contrato versionado do Plus avaliar_cardapio · House full regression 34337333229"
     },
     {
       "id": "no_new_qr_backend",
@@ -155,8 +205,8 @@
       "id": "house_candidate_ci",
       "status": "PASS",
       "classificacao": "PROVEN",
-      "resumo": "Candidato House passou instalação, typecheck, lint, testes e build com Node 22.13.0.",
-      "evidencia": "GitHub Actions 34324888364 · tested SHA 372b8057ded4443b4da15eac7daee332ab1be0f0"
+      "resumo": "Candidato House final passou revalidação materializada com Node 22.13.0: npm ci, typecheck, lint, testes, build e contrato de risco de preço; a árvore limpa posterior removeu somente artefatos temporários de CI.",
+      "evidencia": "GitHub Actions 34337333229 · materialized verification SHA 68befe6969a20f39decbf338fa6c97f869bd23fc · product commit e9dc5895a72389300c14a52a514118e3b14c4bd0 · clean head 659b6b6ea66a5a531ea3460059c989109c69d002"
     },
     {
       "id": "lideres_candidate_ci",
@@ -196,13 +246,54 @@
       "id": "house_production_review",
       "status": "REVIEW_REQUIRED",
       "classificacao": "PROVEN_CANDIDATE__NOT_PROMOTED",
-      "resumo": "Os quatro arquivos do candidato House estão testados, mas esta nova fase ainda não foi mergeada/deployada em produção."
+      "resumo": "O candidato House com inteligência, eventos, risco de preço e refinamento do impresso está comprovado, mas esta nova fase ainda não foi mergeada/deployada em produção."
     },
     {
       "id": "lideres_production_review",
       "status": "REVIEW_REQUIRED",
       "classificacao": "PROVEN_CANDIDATE__MAINTAINER_REQUIRED",
       "resumo": "O PR #2765 precisa de revisão/merge por mantenedor com permissão no upstream."
+    },
+    {
+      "id": "print_qr_regression",
+      "status": "PASS",
+      "classificacao": "PROVEN_CANDIDATE",
+      "resumo": "PosterSemana/impresso House foi refinado sem alterar tipografia ou design system do Líderes; QR e impressão permaneceram funcionais.",
+      "evidencia": "House run 34335347051 · prova materializada de impressão/QR e regressão completa"
+    },
+    {
+      "id": "demand_events_fail_closed",
+      "status": "PASS",
+      "classificacao": "PROVEN_CANDIDATE",
+      "resumo": "Eventos positivos ajustam somente baseline automático; ajuste humano prevalece; fator 0/fechado e ambiguidade exigem decisão humana.",
+      "evidencia": "House run 34336407542 · idempotência + typecheck + lint + testes + build + contrato de eventos"
+    },
+    {
+      "id": "price_risk_no_double_penalty",
+      "status": "PASS",
+      "classificacao": "PROVEN_CANDIDATE",
+      "resumo": "Alta anormal de preço é exibida como risco informativo usando o radar existente e não altera o custo por uma segunda penalização.",
+      "evidencia": "House run 34337333229 · materialized tree check + typecheck + lint + testes + build + price risk contract"
+    },
+    {
+      "id": "inventory_readonly_mapping",
+      "status": "DEFERRED",
+      "classificacao": "KNOWN_SOURCE__LIVE_MAPPING_NOT_PROVEN",
+      "resumo": "A fonte oficial de estoque/reposição do Líderes foi identificada, mas o de-para live House → unidade/departamento ainda não está PROVEN; nenhuma leitura/escrita paralela foi ativada.",
+      "evidencia": "inventario_contagem/abastecimento identificados no Líderes; ativação deliberadamente mantida fora deste candidato"
     }
-  ]
+  ],
+  "evidenceRefresh": {
+    "id": "2026-09-09-house-final",
+    "classificacao": "PROVEN_CANDIDATE__PRODUCTION_UNCHANGED",
+    "houseCleanHead": "659b6b6ea66a5a531ea3460059c989109c69d002",
+    "housePriceProductCommit": "e9dc5895a72389300c14a52a514118e3b14c4bd0",
+    "houseMaterializedVerificationSha": "68befe6969a20f39decbf338fa6c97f869bd23fc",
+    "runs": [
+      "34335347051",
+      "34336407542",
+      "34337333229"
+    ],
+    "productionCrossed": false
+  }
 }
